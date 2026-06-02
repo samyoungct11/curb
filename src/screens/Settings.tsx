@@ -109,10 +109,10 @@ export function Settings() {
     }
   }
 
-  // Open Plaid Link as soon as token arrives and SDK is ready
+  // Open Plaid Link as soon as token arrives and SDK is ready.
+  // `linking` is cleared by the Plaid onExit/onSuccess and error paths.
   useEffect(() => {
     if (linkToken && plaidReady) {
-      setLinking(false)
       openPlaidLink()
     }
   }, [linkToken, plaidReady, openPlaidLink])
@@ -147,7 +147,7 @@ export function Settings() {
   return (
     <div className="px-5 pt-5 pb-8 space-y-4">
       <header>
-        <h1 className="text-[26px] font-semibold tracking-tight">Profile</h1>
+        <h1 className="font-display text-[28px] tracking-tight">Profile</h1>
       </header>
 
       <Card>

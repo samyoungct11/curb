@@ -18,7 +18,7 @@ export function Goals() {
   if (!goal) {
     return (
       <div className="px-5 pt-5">
-        <h1 className="text-[26px] font-semibold tracking-tight mb-4">Goals</h1>
+        <h1 className="font-display text-[28px] tracking-tight mb-4">Goals</h1>
         <Card className="text-center py-10">
           <div className="h-12 w-12 rounded-2xl bg-card-2 text-ink flex items-center justify-center mx-auto mb-3">
             <Icon name="Target" size={20} />
@@ -57,7 +57,7 @@ export function Goals() {
   return (
     <div className="px-5 pt-5 pb-8 space-y-4">
       <header>
-        <h1 className="text-[26px] font-semibold tracking-tight">Goals</h1>
+        <h1 className="font-display text-[28px] tracking-tight">Goals</h1>
       </header>
 
       <Card className="text-center py-8 flex flex-col items-center">

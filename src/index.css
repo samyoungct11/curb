@@ -4,9 +4,11 @@
 
 /* ─── Brand + status tokens (static across themes) ─── */
 @theme {
-  --color-brand: #16965A;
-  --color-brand-soft: #E6F2EB;
-  --color-brand-strong: #0E6F43;
+  /* Brand green is the Curb green — keeps CTAs, rings, and accents
+     consistent with the onboarding flow and logo. */
+  --color-brand: #2A7D52;
+  --color-brand-soft: #E8F4EE;
+  --color-brand-strong: #1A4D34;
 
   /* ─── Curb brand palette ─── */
   --color-curb-green: #2A7D52;

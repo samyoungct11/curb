@@ -73,7 +73,7 @@ export function Home() {
           <div className="text-[11px] text-soft uppercase tracking-[0.16em] font-medium">
             {format(now, 'EEEE, MMM d')}
           </div>
-          <h1 className="text-[26px] font-semibold tracking-tight mt-0.5">
+          <h1 className="font-display text-[28px] tracking-tight mt-0.5">
             {firstName}
           </h1>
         </div>

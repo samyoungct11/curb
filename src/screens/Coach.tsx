@@ -38,7 +38,7 @@ export function Coach() {
   return (
     <div className="px-5 pt-5 pb-8 space-y-4">
       <header>
-        <h1 className="text-[26px] font-semibold tracking-tight">Coach</h1>
+        <h1 className="font-display text-[28px] tracking-tight">Coach</h1>
         <p className="text-[13px] text-soft mt-1">
           Patterns we noticed. No lectures.
         </p>
