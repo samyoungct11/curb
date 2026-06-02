@@ -122,7 +122,7 @@ export function Home() {
               </div>
               <div>
                 <div className="text-[11px] text-soft uppercase tracking-[0.14em] font-semibold">
-                  Safe to spend today
+                  Safe to spend
                 </div>
                 <div className="mt-0.5">
                   <span
@@ -131,9 +131,11 @@ export function Home() {
                       safe.negative && 'text-[var(--color-alert)]',
                     )}
                   >
-                    {money(safe.perDay)}
+                    {money(safe.periodRemaining)}
                   </span>
-                  <span className="text-[12px] text-soft ml-1">/ day</span>
+                  <span className="text-[12px] text-soft ml-1">
+                    until {format(safe.period.end, 'MMM d')}
+                  </span>
                 </div>
               </div>
             </div>

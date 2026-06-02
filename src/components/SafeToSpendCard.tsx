@@ -34,8 +34,8 @@ export function SafeToSpendCard() {
             Know what's safe to spend
           </div>
           <p className="text-[13px] text-soft mt-1 leading-relaxed px-2">
-            Add your payday and any bills, and Curb shows a live daily number you
-            can spend guilt-free until your next paycheck.
+            Add your payday and any bills, and Curb shows how much is safe to
+            spend guilt-free between now and your next paycheck.
           </p>
           <Button size="lg" className="mt-4" onClick={() => setSheetOpen(true)}>
             Set up Safe-to-Spend
@@ -60,7 +60,7 @@ export function SafeToSpendCard() {
       <Card className="py-6 px-5">
         <div className="flex items-start justify-between">
           <div className="text-[11px] text-soft uppercase tracking-[0.16em] font-semibold">
-            Safe to spend today
+            Safe to spend
           </div>
           <button
             type="button"
@@ -74,9 +74,11 @@ export function SafeToSpendCard() {
 
         <div className="mt-2 flex items-end gap-2">
           <span className={`display num text-[44px] font-bold leading-none ${ringText}`}>
-            {money(sts.perDay)}
+            {money(sts.periodRemaining)}
           </span>
-          <span className="text-[13px] text-soft mb-1">/ day</span>
+          <span className="text-[13px] text-soft mb-1">
+            until {format(sts.period.end, 'MMM d')}
+          </span>
         </div>
 
         {sts.negative ? (
@@ -86,9 +88,9 @@ export function SafeToSpendCard() {
           </p>
         ) : (
           <p className="text-[13px] text-soft mt-2 leading-relaxed">
-            {money(sts.periodRemaining)} left to spend over {sts.period.daysRemaining}{' '}
-            {sts.period.daysRemaining === 1 ? 'day' : 'days'} — next paycheck{' '}
-            {format(sts.period.end, 'MMM d')}.
+            Yours to spend across the {sts.period.daysRemaining}{' '}
+            {sts.period.daysRemaining === 1 ? 'day' : 'days'} until your next
+            paycheck — about {money(sts.perDay)}/day.
           </p>
         )}
 
