@@ -18,7 +18,7 @@ import {
   totalSpentThisMonth,
 } from '@/lib/selectors'
 import { computeSafeToSpend } from '@/lib/safeToSpend'
-import { cn, money, signedMoney, statusColor } from '@/lib/utils'
+import { cn, money, signedMoney } from '@/lib/utils'
 
 export function Home() {
   const navigate = useNavigate()
@@ -29,8 +29,9 @@ export function Home() {
   const budget = totalBudget(categories)
   const spent = totalSpentThisMonth(transactions, now)
   const remaining = Math.max(0, budget - spent)
-  const overall = budget > 0 ? spent / budget : 0
-  const status = statusColor(overall)
+  // The dial shows budget *remaining* as a green arc over a gray track, so it
+  // starts as a full green ring and depletes into gray as you spend.
+  const remainingPct = budget > 0 ? remaining / budget : 1
   const week = spentThisWeek(transactions, now)
   const lastWeek = spentLastWeek(transactions, now)
   const weekDelta = week - lastWeek
@@ -47,13 +48,6 @@ export function Home() {
     .sort((a, b) => (a.date < b.date ? 1 : -1))
     .slice(0, 4)
   const categoryById = Object.fromEntries(categories.map((c) => [c.id, c]))
-
-  const ringColor =
-    status === 'green'
-      ? 'var(--color-brand)'
-      : status === 'amber'
-        ? 'var(--color-warning)'
-        : 'var(--color-alert)'
 
   const firstName = user?.name?.split(' ')[0] ?? 'friend'
 
@@ -91,10 +85,10 @@ export function Home() {
           {format(now, 'MMMM yyyy')}
         </div>
         <ProgressRing
-          value={Math.min(1, overall)}
+          value={remainingPct}
           size={196}
           stroke={9}
-          color={ringColor}
+          color="var(--color-brand)"
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
