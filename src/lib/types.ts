@@ -91,3 +91,27 @@ export interface Challenge {
   active: boolean
   startedAt?: string
 }
+
+/** How often the user gets paid — drives the Safe-to-Spend pay period. */
+export type PayFrequency = 'weekly' | 'biweekly' | 'semimonthly' | 'monthly'
+
+/** A recurring bill the user owes on a fixed day of the month. */
+export interface Bill {
+  id: string
+  name: string
+  amount: number
+  dueDay: number // day of month, 1–31
+}
+
+/**
+ * Lightweight cash-flow profile powering Safe-to-Spend.
+ * The minimum we need beyond `User.monthlyIncome` to know what's truly
+ * spendable between now and the next payday.
+ */
+export interface PayProfile {
+  frequency: PayFrequency
+  /** ISO date of a known/most-recent payday — the cycle anchor. */
+  anchorDate: string
+  /** Monthly amount to set aside before money counts as spendable. */
+  monthlySavingsTarget?: number
+}

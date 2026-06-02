@@ -11,7 +11,7 @@ import {
   Sun,
   UserPlus,
 } from 'lucide-react'
-import { usePlaidLink } from 'react-plaid-link'
+import { usePlaidLink, type PlaidLinkOnSuccessMetadata } from 'react-plaid-link'
 import { toast } from 'sonner'
 import { useAppStore } from '@/store/useAppStore'
 import { supabase, getOrCreateUserId } from '@/lib/supabase'
@@ -50,7 +50,7 @@ export function Settings() {
   // ── Plaid Link ──────────────────────────────────────────────────────────────
 
   const onPlaidSuccess = useCallback(
-    async (publicToken: string, metadata: { institution?: { name?: string } }) => {
+    async (publicToken: string, metadata: PlaidLinkOnSuccessMetadata) => {
       const userId = plaidUserId
       if (!userId) return
       try {

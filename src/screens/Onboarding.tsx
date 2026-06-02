@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
 import { Icon } from '@/components/Icon'
+import { CurbLogo } from '@/components/CurbLogo'
 import { useAppStore } from '@/store/useAppStore'
 import { Button } from '@/components/ui/Button'
 import {
@@ -267,6 +268,9 @@ export function Onboarding() {
 
   return (
     <div className="h-full flex flex-col px-5 pt-5 pb-6">
+      <div className="flex justify-center mb-5">
+        <CurbLogo size="sm" />
+      </div>
       <div className="flex items-center gap-2">
         <button
           type="button"

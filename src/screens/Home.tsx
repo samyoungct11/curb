@@ -1,8 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { format } from 'date-fns'
-import { Bell, Sparkles } from 'lucide-react'
+import { Bell, ChevronRight, Sparkles, Wallet } from 'lucide-react'
 import { useAppStore } from '@/store/useAppStore'
+import { CurbLogo } from '@/components/CurbLogo'
 import { ProgressRing } from '@/components/ProgressRing'
 import { CategoryCard } from '@/components/CategoryCard'
 import { TransactionRow } from '@/components/TransactionRow'
@@ -10,16 +11,19 @@ import { Card } from '@/components/ui/Card'
 import {
   categorySpentThisMonth,
   daysLeftInMonth,
+  noSpendDays,
   spentLastWeek,
   spentThisWeek,
   totalBudget,
   totalSpentThisMonth,
 } from '@/lib/selectors'
+import { computeSafeToSpend } from '@/lib/safeToSpend'
 import { cn, money, signedMoney, statusColor } from '@/lib/utils'
 
 export function Home() {
   const navigate = useNavigate()
-  const { user, categories, transactions, notifications } = useAppStore()
+  const { user, categories, transactions, notifications, payProfile, bills } =
+    useAppStore()
 
   const now = new Date()
   const budget = totalBudget(categories)
@@ -31,6 +35,13 @@ export function Home() {
   const lastWeek = spentLastWeek(transactions, now)
   const weekDelta = week - lastWeek
   const dleft = daysLeftInMonth(now)
+  const nsd = noSpendDays(transactions, now)
+  const safe = payProfile
+    ? computeSafeToSpend(
+        { user, profile: payProfile, bills, categories, transactions },
+        now,
+      )
+    : null
   const unread = notifications.filter((n) => !n.read).length
   const recent = [...transactions]
     .sort((a, b) => (a.date < b.date ? 1 : -1))
@@ -49,7 +60,21 @@ export function Home() {
   return (
     <div className="px-5 pt-5 pb-8 space-y-6">
       {/* Header */}
-      <header className="flex items-center justify-between">
+      <header className="space-y-4">
+        {/* Brand bar */}
+        <div className="flex items-center justify-between">
+          <CurbLogo size="sm" />
+          <Link
+            to="/inbox"
+            className="relative h-10 w-10 rounded-full bg-card flex items-center justify-center tap shadow-[var(--shadow-card)]"
+          >
+            <Bell size={17} strokeWidth={1.75} className="text-ink" />
+            {unread > 0 && (
+              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-alert ring-2 ring-[var(--surface)]" />
+            )}
+          </Link>
+        </div>
+        {/* Greeting */}
         <div>
           <div className="text-[11px] text-soft uppercase tracking-[0.16em] font-medium">
             {format(now, 'EEEE, MMM d')}
@@ -58,15 +83,6 @@ export function Home() {
             {firstName}
           </h1>
         </div>
-        <Link
-          to="/inbox"
-          className="relative h-10 w-10 rounded-full bg-card flex items-center justify-center tap shadow-[var(--shadow-card)]"
-        >
-          <Bell size={17} strokeWidth={1.75} className="text-ink" />
-          {unread > 0 && (
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-alert ring-2 ring-[var(--surface)]" />
-          )}
-        </Link>
       </header>
 
       {/* Hero ring */}
@@ -95,6 +111,36 @@ export function Home() {
           </motion.div>
         </ProgressRing>
       </Card>
+
+      {/* Safe to spend today — compact, links to Coach for the full breakdown */}
+      {safe && (
+        <Link to="/coach" className="block">
+          <Card className="flex items-center justify-between py-4 px-5 tap">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0">
+                <Wallet size={17} strokeWidth={1.75} />
+              </div>
+              <div>
+                <div className="text-[11px] text-soft uppercase tracking-[0.14em] font-semibold">
+                  Safe to spend today
+                </div>
+                <div className="mt-0.5">
+                  <span
+                    className={cn(
+                      'num text-[19px] font-bold tracking-tight',
+                      safe.negative && 'text-[var(--color-alert)]',
+                    )}
+                  >
+                    {money(safe.perDay)}
+                  </span>
+                  <span className="text-[12px] text-soft ml-1">/ day</span>
+                </div>
+              </div>
+            </div>
+            <ChevronRight size={18} strokeWidth={1.75} className="text-soft shrink-0" />
+          </Card>
+        </Link>
+      )}
 
       {/* Affordability CTA */}
       <button
@@ -153,7 +199,7 @@ export function Home() {
                 : 'text-[var(--color-brand-strong)]'
             }
           />
-          <Stat label="No-spend days" value="3" />
+          <Stat label="No-spend days" value={String(nsd)} />
         </div>
       </Card>
 

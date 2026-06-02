@@ -2,10 +2,12 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
   AgeRange,
+  Bill,
   Category,
   Challenge,
   Contribution,
   NotificationItem,
+  PayProfile,
   PrimaryGoal,
   SavingsGoal,
   ThemeMode,
@@ -14,11 +16,13 @@ import type {
   User,
 } from '@/lib/types'
 import {
+  seedBills,
   seedCategories,
   seedChallenges,
   seedContributions,
   seedGoals,
   seedNotifications,
+  seedPayProfile,
   seedTransactions,
   seedUser,
 } from '@/lib/seed'
@@ -38,6 +42,10 @@ export interface AppState {
   challenges: Challenge[]
   theme: ThemeMode
   hydrated: boolean
+
+  // Safe-to-Spend (cash-flow profile)
+  payProfile: PayProfile | null
+  bills: Bill[]
 
   // Plaid / bank connection
   plaidUserId: string | null
@@ -67,6 +75,11 @@ export interface AppState {
 
   // challenges
   toggleChallenge: (id: string) => void
+
+  // safe-to-spend
+  setPayProfile: (p: PayProfile | null) => void
+  upsertBill: (b: Bill) => void
+  removeBill: (id: string) => void
 
   // theme + lifecycle
   setTheme: (t: ThemeMode) => void
@@ -111,6 +124,8 @@ const emptyState = () => ({
   goals: [] as SavingsGoal[],
   contributions: [] as Contribution[],
   challenges: [] as Challenge[],
+  payProfile: null as PayProfile | null,
+  bills: [] as Bill[],
   plaidUserId: null as string | null,
   plaidConnected: false,
 })
@@ -124,6 +139,8 @@ const demoState = () => ({
   goals: seedGoals,
   contributions: seedContributions,
   challenges: seedChallenges as Challenge[],
+  payProfile: seedPayProfile,
+  bills: seedBills,
 })
 
 export const useAppStore = create<AppState>()(
@@ -220,6 +237,19 @@ export const useAppStore = create<AppState>()(
           ),
         })),
 
+      setPayProfile: (p) => set({ payProfile: p }),
+      upsertBill: (b) =>
+        set((s) => {
+          const exists = s.bills.some((x) => x.id === b.id)
+          return {
+            bills: exists
+              ? s.bills.map((x) => (x.id === b.id ? b : x))
+              : [...s.bills, b],
+          }
+        }),
+      removeBill: (id) =>
+        set((s) => ({ bills: s.bills.filter((b) => b.id !== id) })),
+
       setTheme: (t) => set({ theme: t }),
       setHydrated: (v) => set({ hydrated: v }),
 
@@ -295,22 +325,9 @@ export const useAppStore = create<AppState>()(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
           )
 
-          // Recalculate category spent amounts
-          const now = new Date()
-          const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-          const spentByCat: Record<string, number> = {}
-          for (const t of merged) {
-            if (t.date >= monthStart) {
-              spentByCat[t.categoryId] = (spentByCat[t.categoryId] ?? 0) + t.amount
-            }
-          }
-
-          const updatedCategories = s.categories.map((c) => ({
-            ...c,
-            spent: spentByCat[c.id] ?? c.spent,
-          }))
-
-          return { transactions: merged, categories: updatedCategories }
+          // Category spend is always derived from transactions (see selectors),
+          // so we only need to persist the merged transaction list here.
+          return { transactions: merged }
         }),
     }),
     {
