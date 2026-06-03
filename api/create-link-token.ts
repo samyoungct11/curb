@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { Configuration, PlaidApi, PlaidEnvironments, CountryCode, Products } from 'plaid'
+import { rateLimit } from './_ratelimit'
 
 const plaidEnv = (process.env.PLAID_ENV ?? 'sandbox') as keyof typeof PlaidEnvironments
 
@@ -17,6 +18,7 @@ const plaid = new PlaidApi(
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).end()
+  if (!(await rateLimit(req, res, 'create-link-token'))) return
 
   const { userId } = req.body as { userId: string }
   if (!userId) return res.status(400).json({ error: 'userId required' })

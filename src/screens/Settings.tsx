@@ -305,9 +305,9 @@ export function Settings() {
         icon={<RotateCcw size={16} strokeWidth={1.75} />}
         label="Start over"
         sublabel="Wipe everything and redo onboarding"
-        onClick={() => {
+        onClick={async () => {
           if (confirm('Wipe all your data and start onboarding again?')) {
-            resetAll()
+            await resetAll()
             navigate('/welcome', { replace: true })
           }
         }}

@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid'
 import { createClient } from '@supabase/supabase-js'
+import { rateLimit } from './_ratelimit'
 
 const plaidEnv = (process.env.PLAID_ENV ?? 'sandbox') as keyof typeof PlaidEnvironments
 
@@ -23,6 +24,7 @@ const supabase = createClient(
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).end()
+  if (!(await rateLimit(req, res, 'exchange-token'))) return
 
   const { public_token, institution_name, userId } = req.body as {
     public_token: string

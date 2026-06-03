@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { rateLimit } from './_ratelimit'
 
 /**
  * Curb money coach — natural-language Q&A + weekly recap powered by the
@@ -213,6 +214,7 @@ async function callAnthropic(
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' })
+  if (!(await rateLimit(req, res, 'coach'))) return
 
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) return res.status(503).json({ error: 'not_configured' })

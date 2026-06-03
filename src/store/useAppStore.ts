@@ -102,7 +102,7 @@ export interface AppState {
   // onboarding / demo
   completeOnboarding: (input: OnboardingInput) => void
   loadDemo: () => void
-  resetAll: () => void
+  resetAll: () => Promise<void>
 
   // Plaid
   setPlaidUserId: (id: string) => void
@@ -376,11 +376,16 @@ export const useAppStore = create<AppState>()(
           hydrated: true,
         }),
 
-      resetAll: () =>
+      resetAll: async () => {
+        // Clear the Supabase anonymous session so its sb-* tokens don't
+        // persist in localStorage after a wipe.
+        const { supabase } = await import('@/lib/supabase')
+        await supabase?.auth.signOut()
         set({
           ...emptyState(),
           hydrated: true,
-        }),
+        })
+      },
 
       setPlaidUserId: (id) => set({ plaidUserId: id, plaidConnected: true }),
 
