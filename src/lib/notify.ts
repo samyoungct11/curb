@@ -1,5 +1,6 @@
 import { toast } from 'sonner'
 import { evaluateTransaction } from '@/lib/notificationEngine'
+import { showPush } from '@/lib/push'
 import { useAppStore } from '@/store/useAppStore'
 import type { NotificationType, Transaction } from '@/lib/types'
 
@@ -37,5 +38,10 @@ export function logTransaction(txn: Transaction) {
         borderLeft: `4px solid ${TYPE_TINT[notif.type]}`,
       },
     })
+    // Mirror the alert as a system notification when the user has opted in.
+    // showPush no-ops unless browser permission is also granted.
+    if (fresh.pushEnabled) {
+      void showPush(notif.title, notif.body, { tag: notif.type })
+    }
   }
 }

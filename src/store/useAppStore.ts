@@ -46,6 +46,9 @@ export interface AppState {
   theme: ThemeMode
   hydrated: boolean
 
+  // Opt-in for system push notifications (also requires browser permission)
+  pushEnabled: boolean
+
   // Safe-to-Spend (cash-flow profile)
   payProfile: PayProfile | null
   bills: Bill[]
@@ -94,6 +97,7 @@ export interface AppState {
   // theme + lifecycle
   setTheme: (t: ThemeMode) => void
   setHydrated: (v: boolean) => void
+  setPushEnabled: (v: boolean) => void
 
   // onboarding / demo
   completeOnboarding: (input: OnboardingInput) => void
@@ -166,6 +170,7 @@ export const useAppStore = create<AppState>()(
       ...emptyState(),
       theme: 'system' as ThemeMode,
       hydrated: false,
+      pushEnabled: false,
 
       setUser: (u) => set({ user: u }),
       updateUser: (patch) =>
@@ -334,6 +339,7 @@ export const useAppStore = create<AppState>()(
 
       setTheme: (t) => set({ theme: t }),
       setHydrated: (v) => set({ hydrated: v }),
+      setPushEnabled: (v) => set({ pushEnabled: v }),
 
       completeOnboarding: (input) => {
         const categories = generateCategories(input.categories, input.monthlyIncome)

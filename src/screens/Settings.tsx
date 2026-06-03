@@ -15,6 +15,11 @@ import { usePlaidLink, type PlaidLinkOnSuccessMetadata } from 'react-plaid-link'
 import { toast } from 'sonner'
 import { useAppStore } from '@/store/useAppStore'
 import { supabase, getOrCreateUserId } from '@/lib/supabase'
+import {
+  pushSupported,
+  requestPushPermission,
+  showPush,
+} from '@/lib/push'
 import { Card } from '@/components/ui/Card'
 import { Switch } from '@/components/ui/Switch'
 import { Segmented } from '@/components/ui/Segmented'
@@ -38,6 +43,8 @@ export function Settings() {
     plaidUserId,
     setPlaidUserId,
     importPlaidTransactions,
+    pushEnabled,
+    setPushEnabled,
   } = useAppStore()
   const [parentSheet, setParentSheet] = useState(false)
   const [privacySheet, setPrivacySheet] = useState(false)
@@ -142,6 +149,31 @@ export function Settings() {
     }
   }
 
+  // Opt in/out of system push notifications. Turning on prompts the browser
+  // for permission; if the user blocks it we keep the toggle off and explain.
+  async function handlePushToggle(on: boolean) {
+    if (!on) {
+      setPushEnabled(false)
+      return
+    }
+    if (!pushSupported()) {
+      toast.error('This device doesn’t support notifications.')
+      return
+    }
+    const result = await requestPushPermission()
+    if (result === 'granted') {
+      setPushEnabled(true)
+      void showPush('Alerts are on', 'We’ll ping you the moment a spend matters.', {
+        tag: 'push-opt-in',
+      })
+    } else if (result === 'denied') {
+      setPushEnabled(false)
+      toast.error('Notifications are blocked — enable them in your browser settings.')
+    } else {
+      setPushEnabled(false)
+    }
+  }
+
   const parentCode = String(Math.floor(100000 + Math.random() * 900000))
 
   return (
@@ -170,6 +202,15 @@ export function Settings() {
           <h2 className="text-[14px] font-semibold tracking-tight">Notifications</h2>
         </div>
         <div className="space-y-4">
+          <div className="flex items-center justify-between bg-card-2 rounded-xl px-3 py-2.5">
+            <div className="pr-3">
+              <div className="text-[13px] font-semibold">Push alerts</div>
+              <div className="text-[11px] text-soft mt-0.5">
+                Get a heads-up the moment a spend matters
+              </div>
+            </div>
+            <Switch checked={pushEnabled} onCheckedChange={handlePushToggle} />
+          </div>
           <div>
             <div className="text-[11px] text-soft uppercase tracking-[0.16em] font-semibold mb-2">
               Tone
