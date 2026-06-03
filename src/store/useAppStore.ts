@@ -9,6 +9,7 @@ import type {
   NotificationItem,
   PayProfile,
   PrimaryGoal,
+  RoundUpRule,
   SavingsGoal,
   ThemeMode,
   ToneMode,
@@ -30,6 +31,7 @@ import {
   buildWelcomeNotification,
   generateCategories,
 } from '@/lib/onboardingDefaults'
+import { accruedRoundUps } from '@/lib/roundup'
 import { uid } from '@/lib/utils'
 
 export interface AppState {
@@ -40,6 +42,7 @@ export interface AppState {
   goals: SavingsGoal[]
   contributions: Contribution[]
   challenges: Challenge[]
+  roundUp: RoundUpRule | null
   theme: ThemeMode
   hydrated: boolean
 
@@ -78,6 +81,10 @@ export interface AppState {
   startChallenge: (tpl: Omit<Challenge, 'active' | 'startedAt' | 'completedAt'>) => void
   leaveChallenge: (id: string) => void
   completeChallenge: (id: string) => void
+
+  // round-up auto-save
+  setRoundUpRule: (patch: Partial<RoundUpRule>) => void
+  sweepRoundUps: () => void
 
   // safe-to-spend
   setPayProfile: (p: PayProfile | null) => void
@@ -127,6 +134,7 @@ const emptyState = () => ({
   goals: [] as SavingsGoal[],
   contributions: [] as Contribution[],
   challenges: [] as Challenge[],
+  roundUp: null as RoundUpRule | null,
   payProfile: null as PayProfile | null,
   bills: [] as Bill[],
   plaidUserId: null as string | null,
@@ -142,6 +150,12 @@ const demoState = () => ({
   goals: seedGoals,
   contributions: seedContributions,
   challenges: seedChallenges as Challenge[],
+  roundUp: {
+    enabled: true,
+    multiple: 1,
+    goalId: seedGoals[0]?.id ?? null,
+    since: '2026-05-01T00:00:00.000Z',
+  } as RoundUpRule,
   payProfile: seedPayProfile,
   bills: seedBills,
 })
@@ -272,6 +286,38 @@ export const useAppStore = create<AppState>()(
               : c,
           ),
         })),
+
+      setRoundUpRule: (patch) =>
+        set((s) => {
+          const base: RoundUpRule = s.roundUp ?? {
+            enabled: false,
+            multiple: 1,
+            goalId: null,
+            since: new Date().toISOString(),
+          }
+          return { roundUp: { ...base, ...patch } }
+        }),
+      // Move all pending round-up change into the chosen goal as a contribution.
+      sweepRoundUps: () =>
+        set((s) => {
+          const rule = s.roundUp
+          if (!rule || !rule.enabled || !rule.goalId) return {}
+          const amount = accruedRoundUps(s.transactions, rule)
+          if (amount <= 0) return {}
+          const now = new Date().toISOString()
+          return {
+            roundUp: { ...rule, sweptThrough: now },
+            contributions: [
+              { id: uid(), goalId: rule.goalId, amount, date: now, note: 'Round-ups' },
+              ...s.contributions,
+            ],
+            goals: s.goals.map((g) =>
+              g.id === rule.goalId
+                ? { ...g, currentAmount: g.currentAmount + amount }
+                : g,
+            ),
+          }
+        }),
 
       setPayProfile: (p) => set({ payProfile: p }),
       upsertBill: (b) =>

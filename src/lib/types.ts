@@ -99,6 +99,22 @@ export interface Challenge {
   target?: number // e.g. 5 no-spend days, 7-day streak, log 10 spends
 }
 
+/**
+ * Round-up auto-save rule. Spare change from each purchase (rounded up to the
+ * next `multiple` dollars) accrues into a vault the user can sweep into a goal.
+ */
+export interface RoundUpRule {
+  enabled: boolean
+  /** Round each spend up to the next multiple of this many dollars (1 or 5). */
+  multiple: number
+  /** Goal that swept round-ups flow into. */
+  goalId: string | null
+  /** ISO timestamp the rule was enabled — round-ups only count from here. */
+  since: string
+  /** ISO timestamp of the last sweep; round-ups after this are still pending. */
+  sweptThrough?: string
+}
+
 /** How often the user gets paid — drives the Safe-to-Spend pay period. */
 export type PayFrequency = 'weekly' | 'biweekly' | 'semimonthly' | 'monthly'
 

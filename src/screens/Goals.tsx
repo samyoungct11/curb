@@ -8,6 +8,7 @@ import { Sheet } from '@/components/ui/Sheet'
 import { ProgressRing } from '@/components/ProgressRing'
 import { Icon } from '@/components/Icon'
 import { StreakCard } from '@/components/StreakCard'
+import { RoundUpCard } from '@/components/RoundUpCard'
 import { ChallengesSection } from '@/components/ChallengesSection'
 import { money } from '@/lib/utils'
 
@@ -119,6 +120,8 @@ export function Goals() {
           </Button>
         </Card>
       )}
+
+      <RoundUpCard />
 
       <ChallengesSection />
 
