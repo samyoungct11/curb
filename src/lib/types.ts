@@ -84,12 +84,19 @@ export interface Contribution {
   note?: string
 }
 
+/** What a challenge measures. All count up toward `target`. */
+export type ChallengeMetric = 'no_spend_days' | 'streak' | 'log_count'
+
 export interface Challenge {
   id: string
   title: string
   description: string
   active: boolean
   startedAt?: string
+  completedAt?: string
+  icon?: string // lucide icon name
+  metric?: ChallengeMetric
+  target?: number // e.g. 5 no-spend days, 7-day streak, log 10 spends
 }
 
 /** How often the user gets paid — drives the Safe-to-Spend pay period. */

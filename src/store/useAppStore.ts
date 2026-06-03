@@ -75,6 +75,9 @@ export interface AppState {
 
   // challenges
   toggleChallenge: (id: string) => void
+  startChallenge: (tpl: Omit<Challenge, 'active' | 'startedAt' | 'completedAt'>) => void
+  leaveChallenge: (id: string) => void
+  completeChallenge: (id: string) => void
 
   // safe-to-spend
   setPayProfile: (p: PayProfile | null) => void
@@ -233,6 +236,39 @@ export const useAppStore = create<AppState>()(
                     ? new Date().toISOString()
                     : c.startedAt,
                 }
+              : c,
+          ),
+        })),
+
+      // Join a challenge from the library (or restart a finished one).
+      startChallenge: (tpl) =>
+        set((s) => {
+          const now = new Date().toISOString()
+          const exists = s.challenges.some((c) => c.id === tpl.id)
+          if (exists) {
+            return {
+              challenges: s.challenges.map((c) =>
+                c.id === tpl.id
+                  ? { ...c, ...tpl, active: true, startedAt: now, completedAt: undefined }
+                  : c,
+              ),
+            }
+          }
+          return {
+            challenges: [...s.challenges, { ...tpl, active: true, startedAt: now }],
+          }
+        }),
+      leaveChallenge: (id) =>
+        set((s) => ({
+          challenges: s.challenges.map((c) =>
+            c.id === id ? { ...c, active: false } : c,
+          ),
+        })),
+      completeChallenge: (id) =>
+        set((s) => ({
+          challenges: s.challenges.map((c) =>
+            c.id === id && !c.completedAt
+              ? { ...c, active: false, completedAt: new Date().toISOString() }
               : c,
           ),
         })),
