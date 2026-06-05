@@ -23,14 +23,28 @@ const hasUpstash = Boolean(
 )
 
 // One sliding window shared across routes: 20 requests / minute / IP.
-const limiter = hasUpstash
-  ? new Ratelimit({
+// Build inside a try/catch: Redis.fromEnv() throws synchronously on a
+// malformed URL/token (e.g. stray quotes, missing https://, trailing space).
+// This runs at module load, so an unguarded throw would crash EVERY request
+// with FUNCTION_INVOCATION_FAILED. On any construction error we log and fall
+// back to null (fail open) rather than take the route down.
+const limiter = (() => {
+  if (!hasUpstash) return null
+  try {
+    return new Ratelimit({
       redis: Redis.fromEnv(),
       limiter: Ratelimit.slidingWindow(20, '1 m'),
       prefix: 'curb-rl',
       analytics: false,
     })
-  : null
+  } catch (err) {
+    console.error(
+      'rate limit disabled — bad Upstash config:',
+      err instanceof Error ? err.message : err,
+    )
+    return null
+  }
+})()
 
 /** Best-effort client IP from the proxy chain. */
 function clientIp(req: VercelRequest): string {
