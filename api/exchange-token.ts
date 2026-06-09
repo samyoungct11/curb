@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid'
-import { createClient } from '@supabase/supabase-js'
 import { rateLimit } from './_ratelimit.js'
+import { requireUser, supabaseAdmin } from './_auth.js'
 
 const plaidEnv = (process.env.PLAID_ENV ?? 'sandbox') as keyof typeof PlaidEnvironments
 
@@ -17,23 +17,22 @@ const plaid = new PlaidApi(
   }),
 )
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-)
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).end()
   if (!(await rateLimit(req, res, 'exchange-token'))) return
 
-  const { public_token, institution_name, userId } = req.body as {
+  const userId = await requireUser(req, res)
+  if (!userId) return
+  // requireUser fails closed when the client is null, so it's non-null here.
+  const supabase = supabaseAdmin!
+
+  const { public_token, institution_name } = req.body as {
     public_token: string
     institution_name: string
-    userId: string
   }
 
-  if (!public_token || !userId) {
-    return res.status(400).json({ error: 'public_token and userId required' })
+  if (!public_token) {
+    return res.status(400).json({ error: 'public_token required' })
   }
 
   try {
