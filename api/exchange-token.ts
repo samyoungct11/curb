@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid'
 import { createClient } from '@supabase/supabase-js'
-import { rateLimit } from './_ratelimit'
+import { rateLimit } from './_ratelimit.js'
 
 const plaidEnv = (process.env.PLAID_ENV ?? 'sandbox') as keyof typeof PlaidEnvironments
 

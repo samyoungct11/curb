@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { rateLimit } from './_ratelimit'
+import { rateLimit } from './_ratelimit.js'
 
 /**
  * Curb money coach — natural-language Q&A + weekly recap powered by the

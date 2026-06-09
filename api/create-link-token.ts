@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { Configuration, PlaidApi, PlaidEnvironments, CountryCode, Products } from 'plaid'
-import { rateLimit } from './_ratelimit'
+import { rateLimit } from './_ratelimit.js'
 
 const plaidEnv = (process.env.PLAID_ENV ?? 'sandbox') as keyof typeof PlaidEnvironments
 
