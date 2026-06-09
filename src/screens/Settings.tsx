@@ -15,6 +15,7 @@ import { usePlaidLink, type PlaidLinkOnSuccessMetadata } from 'react-plaid-link'
 import { toast } from 'sonner'
 import { useAppStore } from '@/store/useAppStore'
 import { supabase, getOrCreateUserId } from '@/lib/supabase'
+import { apiPost } from '@/lib/api'
 import {
   pushSupported,
   requestPushPermission,
@@ -62,14 +63,9 @@ export function Settings() {
       if (!userId) return
       try {
         // Exchange public token for permanent access token (server-side)
-        await fetch('/api/exchange-token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            public_token: publicToken,
-            institution_name: metadata.institution?.name ?? 'Unknown Bank',
-            userId,
-          }),
+        await apiPost('/api/exchange-token', {
+          public_token: publicToken,
+          institution_name: metadata.institution?.name ?? 'Unknown Bank',
         })
 
         // Pull transactions immediately
@@ -100,11 +96,7 @@ export function Settings() {
       if (!userId) throw new Error('Could not get user ID')
       setPlaidUserId(userId)
 
-      const resp = await fetch('/api/create-link-token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      })
+      const resp = await apiPost('/api/create-link-token')
       const { link_token, error } = await resp.json() as { link_token?: string; error?: string }
       if (error || !link_token) throw new Error(error ?? 'No link token')
 
@@ -129,11 +121,7 @@ export function Settings() {
     if (!uid) return
     setSyncing(true)
     try {
-      const resp = await fetch('/api/sync-transactions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: uid }),
-      })
+      const resp = await apiPost('/api/sync-transactions')
       const { transactions, error } = await resp.json() as { transactions?: PlaidTransaction[]; error?: string }
       if (error) throw new Error(error)
       if (transactions?.length) {

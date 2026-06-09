@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid'
 import { createClient } from '@supabase/supabase-js'
 import { rateLimit } from './_ratelimit.js'
+import { requireUser } from './_auth.js'
 
 const plaidEnv = (process.env.PLAID_ENV ?? 'sandbox') as keyof typeof PlaidEnvironments
 
@@ -46,8 +47,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).end()
   if (!(await rateLimit(req, res, 'sync-transactions'))) return
 
-  const { userId } = req.body as { userId: string }
-  if (!userId) return res.status(400).json({ error: 'userId required' })
+  const userId = await requireUser(req, res)
+  if (!userId) return
 
   try {
     // Load all connected bank accounts for this user
