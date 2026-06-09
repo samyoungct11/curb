@@ -4,22 +4,37 @@
 
 /* ─── Brand + status tokens (static across themes) ─── */
 @theme {
-  --color-brand: #16965A;
-  --color-brand-soft: #E6F2EB;
-  --color-brand-strong: #0E6F43;
+  /* Brand green is the Curb green — keeps CTAs, rings, and accents
+     consistent with the onboarding flow and logo. */
+  --color-brand: #2A7D52;
+  --color-brand-soft: #E8F4EE;
+  --color-brand-strong: #1A4D34;
+
+  /* ─── Curb brand palette ─── */
+  --color-curb-green: #2A7D52;
+  --color-curb-deep: #1A4D34;
+  --color-curb-light: #E8F4EE;
+  --color-curb-mid: #3A9E6A;
+  --color-curb-pale: #6DCCA0;
+  --color-curb-midnight: #111813;
+  --color-curb-cream: #F7F8F5;
 
   --color-warning: #D89614;
   --color-warning-soft: #FBF1DA;
 
-  --color-alert: #DC4A4A;
+  /* Status colors — in-app notification states ONLY, never decorative */
+  --color-alert: #C0362F;
   --color-alert-soft: #FBE7E7;
+  --color-caution: #B8760E;
+  --color-info: #2563A8;
 
   --color-positive: #16965A;
   --color-neutral: #6E747F;
 
+  --font-display: 'DM Serif Display', Georgia, serif;
   --font-sans:
-    'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, sans-serif;
+    'DM Sans', 'Inter', ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   --radius-card: 1.25rem;
 
@@ -94,10 +109,12 @@
   .bg-app       { background-color: var(--bg); }
   .bg-card      { background-color: var(--surface); }
   .bg-card-2    { background-color: var(--surface-2); }
+  .bg-ink       { background-color: var(--ink); }
   .text-ink     { color: var(--ink); }
   .text-soft    { color: var(--soft); }
   .border-line  { border-color: var(--line); }
   .ring-line    { --tw-ring-color: var(--line); }
+  .ring-ink     { --tw-ring-color: var(--ink); }
   .divide-line > * + * { border-color: var(--line); }
 }
 

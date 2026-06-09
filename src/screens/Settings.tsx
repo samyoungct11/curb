@@ -11,10 +11,15 @@ import {
   Sun,
   UserPlus,
 } from 'lucide-react'
-import { usePlaidLink } from 'react-plaid-link'
+import { usePlaidLink, type PlaidLinkOnSuccessMetadata } from 'react-plaid-link'
 import { toast } from 'sonner'
 import { useAppStore } from '@/store/useAppStore'
 import { supabase, getOrCreateUserId } from '@/lib/supabase'
+import {
+  pushSupported,
+  requestPushPermission,
+  showPush,
+} from '@/lib/push'
 import { Card } from '@/components/ui/Card'
 import { Switch } from '@/components/ui/Switch'
 import { Segmented } from '@/components/ui/Segmented'
@@ -38,6 +43,8 @@ export function Settings() {
     plaidUserId,
     setPlaidUserId,
     importPlaidTransactions,
+    pushEnabled,
+    setPushEnabled,
   } = useAppStore()
   const [parentSheet, setParentSheet] = useState(false)
   const [privacySheet, setPrivacySheet] = useState(false)
@@ -50,7 +57,7 @@ export function Settings() {
   // ── Plaid Link ──────────────────────────────────────────────────────────────
 
   const onPlaidSuccess = useCallback(
-    async (publicToken: string, metadata: { institution?: { name?: string } }) => {
+    async (publicToken: string, metadata: PlaidLinkOnSuccessMetadata) => {
       const userId = plaidUserId
       if (!userId) return
       try {
@@ -109,10 +116,10 @@ export function Settings() {
     }
   }
 
-  // Open Plaid Link as soon as token arrives and SDK is ready
+  // Open Plaid Link as soon as token arrives and SDK is ready.
+  // `linking` is cleared by the Plaid onExit/onSuccess and error paths.
   useEffect(() => {
     if (linkToken && plaidReady) {
-      setLinking(false)
       openPlaidLink()
     }
   }, [linkToken, plaidReady, openPlaidLink])
@@ -142,12 +149,37 @@ export function Settings() {
     }
   }
 
+  // Opt in/out of system push notifications. Turning on prompts the browser
+  // for permission; if the user blocks it we keep the toggle off and explain.
+  async function handlePushToggle(on: boolean) {
+    if (!on) {
+      setPushEnabled(false)
+      return
+    }
+    if (!pushSupported()) {
+      toast.error('This device doesn’t support notifications.')
+      return
+    }
+    const result = await requestPushPermission()
+    if (result === 'granted') {
+      setPushEnabled(true)
+      void showPush('Alerts are on', 'We’ll ping you the moment a spend matters.', {
+        tag: 'push-opt-in',
+      })
+    } else if (result === 'denied') {
+      setPushEnabled(false)
+      toast.error('Notifications are blocked — enable them in your browser settings.')
+    } else {
+      setPushEnabled(false)
+    }
+  }
+
   const parentCode = String(Math.floor(100000 + Math.random() * 900000))
 
   return (
     <div className="px-5 pt-5 pb-8 space-y-4">
       <header>
-        <h1 className="text-[26px] font-semibold tracking-tight">Profile</h1>
+        <h1 className="font-display text-[28px] tracking-tight">Profile</h1>
       </header>
 
       <Card>
@@ -170,6 +202,15 @@ export function Settings() {
           <h2 className="text-[14px] font-semibold tracking-tight">Notifications</h2>
         </div>
         <div className="space-y-4">
+          <div className="flex items-center justify-between bg-card-2 rounded-xl px-3 py-2.5">
+            <div className="pr-3">
+              <div className="text-[13px] font-semibold">Push alerts</div>
+              <div className="text-[11px] text-soft mt-0.5">
+                Get a heads-up the moment a spend matters
+              </div>
+            </div>
+            <Switch checked={pushEnabled} onCheckedChange={handlePushToggle} />
+          </div>
           <div>
             <div className="text-[11px] text-soft uppercase tracking-[0.16em] font-semibold mb-2">
               Tone
@@ -264,9 +305,9 @@ export function Settings() {
         icon={<RotateCcw size={16} strokeWidth={1.75} />}
         label="Start over"
         sublabel="Wipe everything and redo onboarding"
-        onClick={() => {
+        onClick={async () => {
           if (confirm('Wipe all your data and start onboarding again?')) {
-            resetAll()
+            await resetAll()
             navigate('/welcome', { replace: true })
           }
         }}

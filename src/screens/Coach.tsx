@@ -1,12 +1,19 @@
 import { motion } from 'framer-motion'
-import { Coffee, Flame, Repeat, Sparkles, Sun, Wallet } from 'lucide-react'
+import { Coffee, Flame, Sparkles, Sun, Wallet } from 'lucide-react'
 import { useAppStore } from '@/store/useAppStore'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Switch } from '@/components/ui/Switch'
+import { SafeToSpendCard } from '@/components/SafeToSpendCard'
+import { SubscriptionAuditCard } from '@/components/SubscriptionAuditCard'
+import { AskCoachCard } from '@/components/AskCoachCard'
 import { subDays } from 'date-fns'
 import { money } from '@/lib/utils'
-import { useState } from 'react'
+import {
+  computeStreaks,
+  computeWeekendPattern,
+  recentWin,
+  weekendPatternBody,
+} from '@/lib/coachStats'
 
 export function Coach() {
   const { categories, transactions, challenges, toggleChallenge } = useAppStore()
@@ -22,20 +29,24 @@ export function Coach() {
     : []
   const coffeeSpend = coffeeWeek.reduce((s, t) => s + t.amount, 0)
 
-  const subsCat = categories.find((c) => c.name === 'Subscriptions')
-  const subs = subsCat
-    ? transactions.filter((t) => t.categoryId === subsCat.id)
-    : []
-  const [subMutes, setSubMutes] = useState<Record<string, boolean>>({})
+  // Live "soft" insights — replaces the old hardcoded copy.
+  const streaks = computeStreaks(transactions, categories, now)
+  const weekend = computeWeekendPattern(transactions, categories, now)
+  const weekendBody = weekendPatternBody(weekend)
+  const win = recentWin(transactions, categories, now)
 
   return (
     <div className="px-5 pt-5 pb-8 space-y-4">
       <header>
-        <h1 className="text-[26px] font-semibold tracking-tight">Coach</h1>
+        <h1 className="font-display text-[28px] tracking-tight">Coach</h1>
         <p className="text-[13px] text-soft mt-1">
           Patterns we noticed. No lectures.
         </p>
       </header>
+
+      <AskCoachCard />
+
+      <SafeToSpendCard />
 
       {coffeeCat && (
         <InsightCard
@@ -46,60 +57,26 @@ export function Coach() {
         />
       )}
 
-      {subs.length > 0 && (
-        <Card>
-          <div className="flex items-start gap-3 mb-4">
-            <div className="h-9 w-9 rounded-xl bg-card-2 text-ink flex items-center justify-center shrink-0">
-              <Repeat size={17} strokeWidth={1.75} />
-            </div>
-            <div className="flex-1">
-              <div className="text-[14px] font-semibold tracking-tight">
-                Subscription review
-              </div>
-              <div className="text-[12px] text-soft mt-0.5 num">
-                {subs.length} active · {money(subs.reduce((s, t) => s + t.amount, 0))}/mo
-              </div>
-            </div>
-          </div>
-          <ul className="space-y-2">
-            {subs.map((s) => (
-              <li
-                key={s.id}
-                className="flex items-center justify-between bg-card-2 rounded-xl px-3.5 py-3"
-              >
-                <div>
-                  <div className="text-[13px] font-semibold">{s.merchant}</div>
-                  <div className="num text-[11px] text-soft">{money(s.amount)}/mo</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-soft uppercase tracking-wide">
-                    {subMutes[s.id] ? 'Unused' : 'Keep'}
-                  </span>
-                  <Switch
-                    checked={!!subMutes[s.id]}
-                    onCheckedChange={(v) =>
-                      setSubMutes((m) => ({ ...m, [s.id]: v }))
-                    }
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Card>
+      <SubscriptionAuditCard />
+
+      {weekendBody && (
+        <InsightCard
+          icon={<Sun size={17} strokeWidth={1.75} />}
+          title="Weekend pattern"
+          body={weekendBody}
+          action={
+            weekend && weekend.ratio >= 1.25 ? 'Try a no-delivery weekend' : undefined
+          }
+        />
       )}
 
-      <InsightCard
-        icon={<Sun size={17} strokeWidth={1.75} />}
-        title="Weekend pattern"
-        body="You spend 2.4× more on weekends than weekdays. Mostly food."
-        action="Try a no-delivery weekend"
-      />
-
-      <InsightCard
-        icon={<Sparkles size={17} strokeWidth={1.75} />}
-        title="Recent wins"
-        body="No impulse shopping in 8 days. That's a record this month."
-      />
+      {win && (
+        <InsightCard
+          icon={<Sparkles size={17} strokeWidth={1.75} />}
+          title="Recent wins"
+          body={win}
+        />
+      )}
 
       <section>
         <h2 className="text-[13px] font-semibold tracking-tight uppercase text-soft mt-2 mb-2">
@@ -142,9 +119,21 @@ export function Coach() {
           Streaks
         </h2>
         <div className="grid grid-cols-3 gap-2">
-          <StreakTile icon={<Flame size={16} strokeWidth={1.75} />} label="Under budget" value="2w" />
-          <StreakTile icon={<Coffee size={16} strokeWidth={1.75} />} label="No coffee" value="1d" />
-          <StreakTile icon={<Wallet size={16} strokeWidth={1.75} />} label="No spend" value="3d" />
+          <StreakTile
+            icon={<Flame size={16} strokeWidth={1.75} />}
+            label="Under pace"
+            value={streaks.underPace > 0 ? money(streaks.underPace) : 'Over'}
+          />
+          <StreakTile
+            icon={<Coffee size={16} strokeWidth={1.75} />}
+            label="No coffee"
+            value={`${streaks.noCoffee}d`}
+          />
+          <StreakTile
+            icon={<Wallet size={16} strokeWidth={1.75} />}
+            label="No spend"
+            value={`${streaks.noSpend}d`}
+          />
         </div>
       </section>
     </div>

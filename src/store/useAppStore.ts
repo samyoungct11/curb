@@ -2,11 +2,14 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
   AgeRange,
+  Bill,
   Category,
   Challenge,
   Contribution,
   NotificationItem,
+  PayProfile,
   PrimaryGoal,
+  RoundUpRule,
   SavingsGoal,
   ThemeMode,
   ToneMode,
@@ -14,11 +17,13 @@ import type {
   User,
 } from '@/lib/types'
 import {
+  seedBills,
   seedCategories,
   seedChallenges,
   seedContributions,
   seedGoals,
   seedNotifications,
+  seedPayProfile,
   seedTransactions,
   seedUser,
 } from '@/lib/seed'
@@ -26,6 +31,7 @@ import {
   buildWelcomeNotification,
   generateCategories,
 } from '@/lib/onboardingDefaults'
+import { accruedRoundUps } from '@/lib/roundup'
 import { uid } from '@/lib/utils'
 
 export interface AppState {
@@ -36,8 +42,16 @@ export interface AppState {
   goals: SavingsGoal[]
   contributions: Contribution[]
   challenges: Challenge[]
+  roundUp: RoundUpRule | null
   theme: ThemeMode
   hydrated: boolean
+
+  // Opt-in for system push notifications (also requires browser permission)
+  pushEnabled: boolean
+
+  // Safe-to-Spend (cash-flow profile)
+  payProfile: PayProfile | null
+  bills: Bill[]
 
   // Plaid / bank connection
   plaidUserId: string | null
@@ -67,15 +81,28 @@ export interface AppState {
 
   // challenges
   toggleChallenge: (id: string) => void
+  startChallenge: (tpl: Omit<Challenge, 'active' | 'startedAt' | 'completedAt'>) => void
+  leaveChallenge: (id: string) => void
+  completeChallenge: (id: string) => void
+
+  // round-up auto-save
+  setRoundUpRule: (patch: Partial<RoundUpRule>) => void
+  sweepRoundUps: () => void
+
+  // safe-to-spend
+  setPayProfile: (p: PayProfile | null) => void
+  upsertBill: (b: Bill) => void
+  removeBill: (id: string) => void
 
   // theme + lifecycle
   setTheme: (t: ThemeMode) => void
   setHydrated: (v: boolean) => void
+  setPushEnabled: (v: boolean) => void
 
   // onboarding / demo
   completeOnboarding: (input: OnboardingInput) => void
   loadDemo: () => void
-  resetAll: () => void
+  resetAll: () => Promise<void>
 
   // Plaid
   setPlaidUserId: (id: string) => void
@@ -111,6 +138,9 @@ const emptyState = () => ({
   goals: [] as SavingsGoal[],
   contributions: [] as Contribution[],
   challenges: [] as Challenge[],
+  roundUp: null as RoundUpRule | null,
+  payProfile: null as PayProfile | null,
+  bills: [] as Bill[],
   plaidUserId: null as string | null,
   plaidConnected: false,
 })
@@ -124,6 +154,14 @@ const demoState = () => ({
   goals: seedGoals,
   contributions: seedContributions,
   challenges: seedChallenges as Challenge[],
+  roundUp: {
+    enabled: true,
+    multiple: 1,
+    goalId: seedGoals[0]?.id ?? null,
+    since: '2026-05-01T00:00:00.000Z',
+  } as RoundUpRule,
+  payProfile: seedPayProfile,
+  bills: seedBills,
 })
 
 export const useAppStore = create<AppState>()(
@@ -132,6 +170,7 @@ export const useAppStore = create<AppState>()(
       ...emptyState(),
       theme: 'system' as ThemeMode,
       hydrated: false,
+      pushEnabled: false,
 
       setUser: (u) => set({ user: u }),
       updateUser: (patch) =>
@@ -220,8 +259,87 @@ export const useAppStore = create<AppState>()(
           ),
         })),
 
+      // Join a challenge from the library (or restart a finished one).
+      startChallenge: (tpl) =>
+        set((s) => {
+          const now = new Date().toISOString()
+          const exists = s.challenges.some((c) => c.id === tpl.id)
+          if (exists) {
+            return {
+              challenges: s.challenges.map((c) =>
+                c.id === tpl.id
+                  ? { ...c, ...tpl, active: true, startedAt: now, completedAt: undefined }
+                  : c,
+              ),
+            }
+          }
+          return {
+            challenges: [...s.challenges, { ...tpl, active: true, startedAt: now }],
+          }
+        }),
+      leaveChallenge: (id) =>
+        set((s) => ({
+          challenges: s.challenges.map((c) =>
+            c.id === id ? { ...c, active: false } : c,
+          ),
+        })),
+      completeChallenge: (id) =>
+        set((s) => ({
+          challenges: s.challenges.map((c) =>
+            c.id === id && !c.completedAt
+              ? { ...c, active: false, completedAt: new Date().toISOString() }
+              : c,
+          ),
+        })),
+
+      setRoundUpRule: (patch) =>
+        set((s) => {
+          const base: RoundUpRule = s.roundUp ?? {
+            enabled: false,
+            multiple: 1,
+            goalId: null,
+            since: new Date().toISOString(),
+          }
+          return { roundUp: { ...base, ...patch } }
+        }),
+      // Move all pending round-up change into the chosen goal as a contribution.
+      sweepRoundUps: () =>
+        set((s) => {
+          const rule = s.roundUp
+          if (!rule || !rule.enabled || !rule.goalId) return {}
+          const amount = accruedRoundUps(s.transactions, rule)
+          if (amount <= 0) return {}
+          const now = new Date().toISOString()
+          return {
+            roundUp: { ...rule, sweptThrough: now },
+            contributions: [
+              { id: uid(), goalId: rule.goalId, amount, date: now, note: 'Round-ups' },
+              ...s.contributions,
+            ],
+            goals: s.goals.map((g) =>
+              g.id === rule.goalId
+                ? { ...g, currentAmount: g.currentAmount + amount }
+                : g,
+            ),
+          }
+        }),
+
+      setPayProfile: (p) => set({ payProfile: p }),
+      upsertBill: (b) =>
+        set((s) => {
+          const exists = s.bills.some((x) => x.id === b.id)
+          return {
+            bills: exists
+              ? s.bills.map((x) => (x.id === b.id ? b : x))
+              : [...s.bills, b],
+          }
+        }),
+      removeBill: (id) =>
+        set((s) => ({ bills: s.bills.filter((b) => b.id !== id) })),
+
       setTheme: (t) => set({ theme: t }),
       setHydrated: (v) => set({ hydrated: v }),
+      setPushEnabled: (v) => set({ pushEnabled: v }),
 
       completeOnboarding: (input) => {
         const categories = generateCategories(input.categories, input.monthlyIncome)
@@ -258,11 +376,16 @@ export const useAppStore = create<AppState>()(
           hydrated: true,
         }),
 
-      resetAll: () =>
+      resetAll: async () => {
+        // Clear the Supabase anonymous session so its sb-* tokens don't
+        // persist in localStorage after a wipe.
+        const { supabase } = await import('@/lib/supabase')
+        await supabase?.auth.signOut()
         set({
           ...emptyState(),
           hydrated: true,
-        }),
+        })
+      },
 
       setPlaidUserId: (id) => set({ plaidUserId: id, plaidConnected: true }),
 
@@ -295,22 +418,9 @@ export const useAppStore = create<AppState>()(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
           )
 
-          // Recalculate category spent amounts
-          const now = new Date()
-          const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-          const spentByCat: Record<string, number> = {}
-          for (const t of merged) {
-            if (t.date >= monthStart) {
-              spentByCat[t.categoryId] = (spentByCat[t.categoryId] ?? 0) + t.amount
-            }
-          }
-
-          const updatedCategories = s.categories.map((c) => ({
-            ...c,
-            spent: spentByCat[c.id] ?? c.spent,
-          }))
-
-          return { transactions: merged, categories: updatedCategories }
+          // Category spend is always derived from transactions (see selectors),
+          // so we only need to persist the merged transaction list here.
+          return { transactions: merged }
         }),
     }),
     {

@@ -58,6 +58,23 @@ export function spentLastWeek(
   return spentInDateRange(transactions, subDays(asOf, 14), subDays(asOf, 7))
 }
 
+/** Number of the last `days` calendar days (incl. today) with zero spending. */
+export function noSpendDays(
+  transactions: Transaction[],
+  asOf: Date = new Date(),
+  days = 7,
+): number {
+  const spendDays = new Set(
+    transactions.map((t) => format(new Date(t.date), 'yyyy-MM-dd')),
+  )
+  let count = 0
+  for (let i = 0; i < days; i++) {
+    const d = subDays(asOf, i)
+    if (!spendDays.has(format(d, 'yyyy-MM-dd'))) count++
+  }
+  return count
+}
+
 export function daysLeftInMonth(asOf: Date = new Date()): number {
   const end = endOfMonth(asOf)
   return Math.max(
@@ -102,13 +119,12 @@ export function dailyCumulativeForCategory(
     (asOf.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
   )
   const result: { day: number; spent: number; pace: number }[] = []
-  let cum = 0
   for (let i = 0; i <= days; i++) {
     const dayDate = new Date(start)
     dayDate.setDate(start.getDate() + i)
     const dayEnd = new Date(dayDate)
     dayEnd.setHours(23, 59, 59, 999)
-    cum = transactions
+    const cum = transactions
       .filter(
         (t) =>
           t.categoryId === categoryId &&

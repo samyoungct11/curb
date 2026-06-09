@@ -25,7 +25,7 @@ export function Transactions() {
   return (
     <div className="px-5 pt-5 pb-24 space-y-4 relative">
       <header className="flex items-center justify-between">
-        <h1 className="text-[26px] font-semibold tracking-tight">Activity</h1>
+        <h1 className="font-display text-[28px] tracking-tight">Activity</h1>
         {filter && (
           <button
             type="button"

@@ -1,7 +1,9 @@
 import type {
+  Bill,
   Category,
   Contribution,
   NotificationItem,
+  PayProfile,
   SavingsGoal,
   Transaction,
   User,
@@ -24,7 +26,7 @@ export const seedUser: User = {
   isStudent: true,
   primaryGoal: 'track_food',
   notificationTone: 'balanced',
-  createdAt: '2026-05-01T00:00:00.000Z',
+  createdAt: '2026-03-01T00:00:00.000Z',
 }
 
 export const seedCategories: Category[] = [
@@ -37,6 +39,16 @@ export const seedCategories: Category[] = [
 ]
 
 export const seedTransactions: Transaction[] = [
+  // ── Recurring history (Mar–Apr) so the subscription detector has a cadence
+  //    to lock onto and a price change to flag. Earlier than the May feed but
+  //    inside Maya's account history (created Mar 1).
+  { id: 't-h01', merchant: 'Spotify',  amount: 9.99,  categoryId: CAT.subs, date: '2026-03-03T00:01:00Z', isManual: false },
+  { id: 't-h02', merchant: 'Netflix',  amount: 7.00,  categoryId: CAT.subs, date: '2026-03-07T00:01:00Z', isManual: false },
+  { id: 't-h03', merchant: 'iCloud+',  amount: 2.99,  categoryId: CAT.subs, date: '2026-03-15T00:01:00Z', isManual: false },
+  { id: 't-h04', merchant: 'Spotify',  amount: 9.99,  categoryId: CAT.subs, date: '2026-04-03T00:01:00Z', isManual: false },
+  { id: 't-h05', merchant: 'Netflix',  amount: 7.00,  categoryId: CAT.subs, date: '2026-04-07T00:01:00Z', isManual: false },
+  { id: 't-h06', merchant: 'iCloud+',  amount: 2.99,  categoryId: CAT.subs, date: '2026-04-15T00:01:00Z', isManual: false },
+  { id: 't-h07', merchant: 'iCloud+',  amount: 2.99,  categoryId: CAT.subs, date: '2026-05-15T00:01:00Z', isManual: false },
   { id: 't-01', merchant: 'Chipotle',      amount: 12.40, categoryId: CAT.restaurants, date: '2026-05-01T12:14:00Z', isManual: false },
   { id: 't-02', merchant: 'Blue Bottle',   amount: 6.50,  categoryId: CAT.coffee,      date: '2026-05-02T08:32:00Z', isManual: false },
   { id: 't-03', merchant: 'Spotify',       amount: 11.00, categoryId: CAT.subs,        date: '2026-05-03T00:01:00Z', isManual: false },
@@ -126,4 +138,16 @@ export const seedChallenges = [
     description: 'Skip DoorDash / UberEats for 7 days. You usually save ~$40.',
     active: false,
   },
+]
+
+// Maya gets paid every two weeks; anchor on a recent payday.
+export const seedPayProfile: PayProfile = {
+  frequency: 'biweekly',
+  anchorDate: '2026-05-23T00:00:00.000Z',
+  monthlySavingsTarget: 45,
+}
+
+export const seedBills: Bill[] = [
+  { id: 'bill-phone', name: 'Phone', amount: 25, dueDay: 1 },
+  { id: 'bill-gym', name: 'Gym', amount: 20, dueDay: 15 },
 ]
