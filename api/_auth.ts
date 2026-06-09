@@ -21,7 +21,17 @@ import { createClient } from '@supabase/supabase-js'
 // in requireUser — the secure default for an authorization check.
 const url = process.env.SUPABASE_URL
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-const supabase = url && serviceKey ? createClient(url, serviceKey) : null
+
+/**
+ * Shared service-role client (or null when the auth backend isn't
+ * configured). Exported so the data routes reuse this guarded instance
+ * instead of constructing their own unguarded one — an unguarded
+ * `createClient(undefined, ...)` throws at module load and crashes the
+ * whole function with a 500 before any auth check can run. Because
+ * `requireUser` fails closed (401) whenever this is null, route handlers
+ * never reach a point where they'd dereference a null client.
+ */
+export const supabaseAdmin = url && serviceKey ? createClient(url, serviceKey) : null
 
 /**
  * Verify the caller and return their user id, or send a 401 and return null.
@@ -36,7 +46,7 @@ export async function requireUser(
 ): Promise<string | null> {
   // Auth backend not configured → fail CLOSED (deny). Never let an
   // unconfigured server fall through to trusting unverified input.
-  if (!supabase) {
+  if (!supabaseAdmin) {
     res.status(401).json({ error: 'unauthorized' })
     return null
   }
@@ -50,7 +60,7 @@ export async function requireUser(
 
   // getUser(jwt) validates the token signature/expiry against the auth server
   // and returns the associated user — independent of the client's own key.
-  const { data, error } = await supabase.auth.getUser(token)
+  const { data, error } = await supabaseAdmin.auth.getUser(token)
   if (error || !data.user) {
     res.status(401).json({ error: 'unauthorized' })
     return null
