@@ -1,0 +1,43 @@
+<svg width="1000" height="500" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Curb primary lockup — night palette, DM Serif Display, brand spark.
+       Fonts load via Google Fonts when opened as a document; convert text
+       to outlines before print/app-store use. -->
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=DM+Sans:opsz,wght@9..40,500&amp;display=swap');
+      .word { font-family: 'DM Serif Display', Georgia, serif; }
+      .tag  { font-family: 'DM Sans', ui-sans-serif, sans-serif; }
+    </style>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0E1A14"/>
+      <stop offset="1" stop-color="#13231B"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="50%" cy="46%" r="42%">
+      <stop offset="0" stop-color="#2A7D52" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#2A7D52" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <filter id="sparkle" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1000" height="500" fill="url(#bg)"/>
+  <rect width="1000" height="500" fill="url(#halo)"/>
+
+  <!-- soft mint glow underlayer, crisp white wordmark on top -->
+  <text x="500" y="292" text-anchor="middle" class="word" font-size="190"
+        fill="#6DCCA0" opacity="0.55" filter="url(#glow)">curb</text>
+  <text x="500" y="292" text-anchor="middle" class="word" font-size="190"
+        fill="#FFFFFF">curb</text>
+
+  <!-- brand spark riding the b's ascender -->
+  <path transform="translate(688 118) scale(2.6)" fill="#6DCCA0" filter="url(#sparkle)"
+        d="M12 3l2.1 5.6L20 11l-5.9 2.4L12 19l-2.1-5.6L4 11l5.9-2.4z"/>
+
+  <text x="500" y="372" text-anchor="middle" class="tag" font-size="24"
+        letter-spacing="7" fill="#AFC4B8">MONEY, MINUS THE MYSTERY.</text>
+</svg>

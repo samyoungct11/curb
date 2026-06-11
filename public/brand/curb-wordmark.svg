@@ -1,0 +1,25 @@
+<svg width="760" height="300" viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Curb wordmark — transparent background, for use on night surfaces.
+       White DM Serif Display + mint brand spark. -->
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;display=swap');
+      .word { font-family: 'DM Serif Display', Georgia, serif; }
+    </style>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+    <filter id="sparkle" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="3.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <text x="360" y="216" text-anchor="middle" class="word" font-size="180"
+        fill="#6DCCA0" opacity="0.5" filter="url(#glow)">curb</text>
+  <text x="360" y="216" text-anchor="middle" class="word" font-size="180"
+        fill="#FFFFFF">curb</text>
+
+  <path transform="translate(540 52) scale(2.4)" fill="#6DCCA0" filter="url(#sparkle)"
+        d="M12 3l2.1 5.6L20 11l-5.9 2.4L12 19l-2.1-5.6L4 11l5.9-2.4z"/>
+</svg>
