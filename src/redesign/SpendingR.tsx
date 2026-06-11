@@ -1,11 +1,18 @@
 import { motion } from 'framer-motion'
-import { Screen, Bar, BottomNav } from './primitives'
+import { Screen, Bar, BottomNav, Glyph, type GlyphName } from './primitives'
 
-const cats = [
-  { name: 'Food', icon: '🌮', spent: 128, cap: 160, note: 'heads up — $32 for 10 more days', tone: 'warning' as const },
-  { name: 'Going out', icon: '🪩', spent: 58, cap: 80, note: 'you’re good — one more night out fits', tone: 'brand' as const },
-  { name: 'Transport', icon: '🛹', spent: 22, cap: 40, note: 'cruising. barely touched it', tone: 'brand' as const },
-  { name: 'Shopping', icon: '🛍️', spent: 48, cap: 60, note: 'one impulse buy from the line', tone: 'warning' as const },
+const cats: {
+  name: string
+  icon: GlyphName
+  spent: number
+  cap: number
+  note: string
+  tone: 'brand' | 'warning'
+}[] = [
+  { name: 'Food', icon: 'food', spent: 128, cap: 160, note: 'heads up — $32 for 10 more days', tone: 'warning' },
+  { name: 'Going out', icon: 'music', spent: 58, cap: 80, note: 'you’re good — one more night out fits', tone: 'brand' },
+  { name: 'Transport', icon: 'plane', spent: 22, cap: 40, note: 'cruising. barely touched it', tone: 'brand' },
+  { name: 'Shopping', icon: 'bag', spent: 48, cap: 60, note: 'one impulse buy from the line', tone: 'warning' },
 ]
 
 // Mon–Sun relative spend, for the weekly rhythm strip
@@ -39,7 +46,9 @@ export default function SpendingR() {
                 className="glass w-[76%] shrink-0 snap-center rounded-3xl p-6"
               >
                 <div className="flex items-start justify-between">
-                  <span className="text-3xl">{c.icon}</span>
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-curb-green/15 text-mint">
+                    <Glyph name={c.icon} className="h-6 w-6" />
+                  </span>
                   <span
                     className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                       c.tone === 'warning'

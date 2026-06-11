@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Screen, Bar, BottomNav } from './primitives'
+import { Screen, Bar, BottomNav, Glyph } from './primitives'
 
 const recent = [
   { merchant: 'Chipotle', when: 'today, 12:41', amt: '−$11.20', cat: 'Food' },
@@ -16,7 +16,7 @@ export default function HomeR() {
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-fog">
             thursday · week 2 of june
           </p>
-          <p className="mt-1 text-lg text-mist">hey Maya 👋</p>
+          <p className="mt-1 text-lg text-mist">hey Maya</p>
         </header>
 
         {/* Hero: the one number, taking up space confidently */}
@@ -56,7 +56,7 @@ export default function HomeR() {
           transition={{ delay: 0.15 }}
           className="glass mt-4 flex w-full items-center gap-3 rounded-2xl border-l-2 border-l-warning p-4 text-left"
         >
-          <span className="text-xl">👀</span>
+          <Glyph name="eye" className="h-5 w-5 shrink-0 text-warning" />
           <span className="flex-1 text-sm leading-snug text-mist">
             Food’s at <span className="font-semibold text-white">80%</span> — $9
             left til Sunday

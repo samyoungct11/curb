@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Screen, SpringSheet } from './primitives'
+import { Screen, SpringSheet, Glyph, type GlyphName } from './primitives'
 
-const perks = [
-  ['✦', 'Unlimited Coach asks', 'free tier gets 5/week — Curb+ never cuts you off mid-question'],
-  ['🔮', 'Semester forecast', 'see your balance on any future date — spring break, finals, move-out'],
-  ['🧾', 'Subscription audit', 'finds the trials you forgot. average student saves $14/mo'],
-] as const
+const perks: [GlyphName, string, string][] = [
+  ['spark', 'Unlimited Coach asks', 'free tier gets 5/week — Curb+ never cuts you off mid-question'],
+  ['orb', 'Semester forecast', 'see your balance on any future date — spring break, finals, move-out'],
+  ['receipt', 'Subscription audit', 'finds the trials you forgot. average student saves $14/mo'],
+]
 
 export default function UpgradeR() {
   const [open, setOpen] = useState(false)
@@ -38,9 +38,9 @@ export default function UpgradeR() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.3, type: 'spring', stiffness: 260, damping: 18 }}
-            className="glass-deep absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-glow"
+            className="glass-deep absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-glow"
           >
-            🔒 unlock with Curb+
+            <Glyph name="lock" className="h-4 w-4 text-mint" /> unlock with Curb+
           </motion.button>
         </div>
 
@@ -69,7 +69,7 @@ export default function UpgradeR() {
         <ul className="mt-5 space-y-4">
           {perks.map(([icon, title, sub]) => (
             <li key={title} className="flex gap-3">
-              <span className="text-lg">{icon}</span>
+              <Glyph name={icon} className="mt-0.5 h-5 w-5 shrink-0 text-mint" />
               <div>
                 <p className="text-[15px] font-semibold text-white">{title}</p>
                 <p className="text-[13px] leading-snug text-mist">{sub}</p>

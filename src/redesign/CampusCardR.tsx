@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Screen, Bar, BottomNav } from './primitives'
+import { Screen, Bar, BottomNav, Glyph } from './primitives'
 
 export default function CampusCardR() {
   return (
@@ -35,12 +35,12 @@ export default function CampusCardR() {
         <div className="glass mt-6 rounded-3xl p-5">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-lg text-white">burn rate</h2>
-            <span className="text-2xl">🔥</span>
+            <Glyph name="flame" className="h-6 w-6 text-warning" />
           </div>
           <p className="mt-2 text-[15px] leading-relaxed text-mist">
             At your pace, dining dollars run out{' '}
             <span className="font-semibold text-white">Aug 2</span> — two weeks
-            before the semester ends. 😬
+            before the semester ends.
           </p>
           <div className="mt-4">
             <Bar pct={72} tone="warning" />

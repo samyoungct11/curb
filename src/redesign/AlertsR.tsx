@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Screen } from './primitives'
+import { Screen, Glyph, type GlyphName } from './primitives'
 
 /*
  * Curb's alert language. Three states, three jobs:
@@ -8,12 +8,21 @@ import { Screen } from './primitives'
  *  - win (positive):      under budget — celebrate out loud
  * Semantic colors appear ONLY here, per the brand system.
  */
-const alerts = [
+const alerts: {
+  state: string
+  color: string
+  chip: string
+  glyph: GlyphName
+  title: string
+  body: string
+  cta: string
+  time: string
+}[] = [
   {
     state: 'heads-up',
     color: 'border-l-warning',
     chip: 'bg-warning/15 text-warning',
-    emoji: '👀',
+    glyph: 'eye',
     title: 'heads up',
     body: 'You just spent $23 at Chipotle — that’s 80% of Food this week.',
     cta: 'Let’s look at this',
@@ -23,7 +32,7 @@ const alerts = [
     state: 'over',
     color: 'border-l-alert',
     chip: 'bg-alert/15 text-alert',
-    emoji: '🫠',
+    glyph: 'alert',
     title: 'food’s done for the week',
     body: 'You’re $12 over. Wanna borrow from Going out? You’ve got room there.',
     cta: 'Rebalance it',
@@ -33,7 +42,7 @@ const alerts = [
     state: 'win',
     color: 'border-l-positive',
     chip: 'bg-positive/15 text-positive',
-    emoji: '🔥',
+    glyph: 'trend',
     title: 'sunday wrap',
     body: 'You finished $18 under budget. That’s 3 weeks straight — new record.',
     cta: 'Keep it up →',
@@ -62,8 +71,8 @@ export default function AlertsR() {
               className={`glass rounded-2xl border-l-2 p-5 ${a.color}`}
             >
               <div className="flex items-center justify-between">
-                <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${a.chip}`}>
-                  {a.emoji} {a.title}
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${a.chip}`}>
+                  <Glyph name={a.glyph} className="h-3.5 w-3.5" /> {a.title}
                 </span>
                 <span className="text-xs text-fog">{a.time}</span>
               </div>
@@ -96,7 +105,7 @@ export default function AlertsR() {
                 <span className="text-[11px] text-fog">now</span>
               </div>
               <p className="mt-0.5 text-[13px] leading-snug text-mist">
-                You just spent $23 at Chipotle 👀 — you’ve hit 80% of your food
+                You just spent $23 at Chipotle — you’ve hit 80% of your food
                 budget. $9 left til Sunday.
               </p>
             </div>
