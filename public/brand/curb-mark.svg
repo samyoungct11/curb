@@ -1,0 +1,39 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Curb app-icon mark — serif C monogram on the brand-green night
+       gradient, glass highlight, spark tucked into the C's opening. -->
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;display=swap');
+      .mono { font-family: 'DM Serif Display', Georgia, serif; }
+    </style>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2A7D52"/>
+      <stop offset="0.55" stop-color="#1A4D34"/>
+      <stop offset="1" stop-color="#0E1A14"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="0.4" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
+    <filter id="sparkle" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="118" fill="url(#tile)"/>
+  <rect width="512" height="512" rx="118" fill="url(#sheen)"/>
+  <rect x="6" y="6" width="500" height="500" rx="112" fill="none"
+        stroke="#6DCCA0" stroke-opacity="0.22" stroke-width="2"/>
+
+  <text x="244" y="372" text-anchor="middle" class="mono" font-size="330"
+        fill="#6DCCA0" opacity="0.5" filter="url(#glow)">C</text>
+  <text x="244" y="372" text-anchor="middle" class="mono" font-size="330"
+        fill="#FFFFFF">C</text>
+
+  <path transform="translate(330 196) scale(3.4)" fill="#6DCCA0" filter="url(#sparkle)"
+        d="M12 3l2.1 5.6L20 11l-5.9 2.4L12 19l-2.1-5.6L4 11l5.9-2.4z"/>
+</svg>

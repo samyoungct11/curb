@@ -13,6 +13,7 @@ import { Inbox } from '@/screens/Inbox'
 import { WeeklySummary } from '@/screens/WeeklySummary'
 import { Onboarding } from '@/screens/Onboarding'
 import { CampusCard } from '@/screens/CampusCard'
+import RedesignGallery from '@/redesign/RedesignGallery'
 
 export function Router() {
   return (
@@ -40,6 +41,9 @@ export function Router() {
           <Route path="/weekly" element={<WeeklySummary />} />
           <Route path="/welcome" element={<Onboarding />} />
         </Route>
+
+        {/* Gen Z redesign preview gallery — outside AppShell on purpose */}
+        <Route path="/redesign" element={<RedesignGallery />} />
       </Routes>
     </BrowserRouter>
   )

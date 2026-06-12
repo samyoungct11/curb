@@ -1,0 +1,54 @@
+/* ─── Curb · Gen Z redesign — night-first palette ───
+   Additive tokens + utilities for the src/redesign screens.
+   Imported by src/index.css. Brand green (#2A7D52) and the DM
+   Serif Display / DM Sans pair are inherited from the core theme. */
+
+@theme {
+  /* Night surface stack — deep green-black, not gray-black */
+  --color-night: #0E1A14;
+  --color-night-2: #13231b;
+  --color-night-3: #1a2f24;
+
+  /* Text on night: mist for secondary, fog for tertiary */
+  --color-mist: #afc4b8;
+  --color-fog: #6f8579;
+
+  /* Mint = the glow accent (lighter read of brand green on dark) */
+  --color-mint: #6dcca0;
+
+  /* Soft green glow for hero numbers, CTAs, and the campus card */
+  --shadow-glow: 0 0 0 1px rgba(109, 204, 160, 0.14),
+    0 8px 40px rgba(42, 125, 82, 0.35);
+  --shadow-sheet: 0 -12px 48px rgba(0, 0, 0, 0.5);
+}
+
+/* Frosted card surface — replaces flat white cards on night */
+@utility glass {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.07),
+    rgba(255, 255, 255, 0.02)
+  );
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Brand-tinted frost — for moments that should feel "Curb" (sheets, coach) */
+@utility glass-deep {
+  background: linear-gradient(
+    160deg,
+    rgba(42, 125, 82, 0.22),
+    rgba(42, 125, 82, 0.05)
+  );
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(109, 204, 160, 0.18);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

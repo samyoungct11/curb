@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Curb · Brand Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --night: #0E1A14; --night-2: #13231B; --green: #2A7D52;
+    --mint: #6DCCA0; --mist: #AFC4B8; --fog: #6F8579;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--night); color: #fff;
+    font-family: 'DM Sans', ui-sans-serif, sans-serif;
+    padding: 56px 32px 80px; display: flex; flex-direction: column;
+    align-items: center; gap: 48px;
+  }
+  h1 { font-family: 'DM Serif Display', Georgia, serif; font-size: 40px; font-weight: 400; }
+  header p { color: var(--fog); margin-top: 6px; font-size: 14px; letter-spacing: 0.04em; }
+  section { width: min(880px, 100%); }
+  h2 {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--mint); margin-bottom: 14px;
+  }
+  .card {
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 24px;
+    background: linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+    padding: 28px; display: flex; justify-content: center; align-items: center;
+  }
+  .note { color: var(--fog); font-size: 13px; margin-top: 10px; line-height: 1.5; }
+  svg { max-width: 100%; height: auto; }
+  .swatches { display: flex; gap: 14px; flex-wrap: wrap; }
+  .swatch { width: 150px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+  .swatch .chip { height: 72px; }
+  .swatch .label { padding: 10px 12px; font-size: 12px; background: var(--night-2); }
+  .swatch .label b { display: block; font-weight: 600; }
+  .swatch .label span { color: var(--fog); }
+  .type-row { display: flex; gap: 28px; flex-wrap: wrap; }
+  .type-card { flex: 1; min-width: 260px; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; }
+  .type-card .sample { font-size: 34px; margin-bottom: 6px; }
+  .serif .sample { font-family: 'DM Serif Display', Georgia, serif; }
+  .type-card small { color: var(--fog); font-size: 12px; }
+</style>
+</head>
+<body>
+
+<header style="text-align:center">
+  <h1>Curb — brand sheet</h1>
+  <p>NIGHT-FIRST IDENTITY · DM SERIF DISPLAY + DM SANS · BRAND SPARK ✦</p>
+</header>
+
+<section>
+  <h2>Primary lockup</h2>
+  <div class="card" style="padding:0; overflow:hidden">
+    <svg width="1000" height="500" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Curb primary lockup">
+      <defs>
+        <linearGradient id="l-bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#0E1A14"/><stop offset="1" stop-color="#13231B"/>
+        </linearGradient>
+        <radialGradient id="l-halo" cx="50%" cy="46%" r="42%">
+          <stop offset="0" stop-color="#2A7D52" stop-opacity="0.5"/>
+          <stop offset="1" stop-color="#2A7D52" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="l-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="14"/></filter>
+        <filter id="l-sparkle" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="4" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <rect width="1000" height="500" fill="url(#l-bg)"/>
+      <rect width="1000" height="500" fill="url(#l-halo)"/>
+      <text x="500" y="292" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="190" fill="#6DCCA0" opacity="0.55" filter="url(#l-glow)">curb</text>
+      <text x="500" y="292" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="190" fill="#FFFFFF">curb</text>
+      <path transform="translate(688 118) scale(2.6)" fill="#6DCCA0" filter="url(#l-sparkle)" d="M12 3l2.1 5.6L20 11l-5.9 2.4L12 19l-2.1-5.6L4 11l5.9-2.4z"/>
+      <text x="500" y="372" text-anchor="middle" font-family="'DM Sans', sans-serif" font-size="24" letter-spacing="7" fill="#AFC4B8">MONEY, MINUS THE MYSTERY.</text>
+    </svg>
+  </div>
+  <p class="note">Hero usage: website, launch video end-card, press kit. File: <code>curb-logo.svg</code></p>
+</section>
+
+<section>
+  <h2>Wordmark · transparent</h2>
+  <div class="card">
+    <svg width="560" height="220" viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Curb wordmark">
+      <defs>
+        <filter id="w-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="12"/></filter>
+        <filter id="w-sparkle" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="3.5" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <text x="360" y="216" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="180" fill="#6DCCA0" opacity="0.5" filter="url(#w-glow)">curb</text>
+      <text x="360" y="216" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="180" fill="#FFFFFF">curb</text>
+      <path transform="translate(540 52) scale(2.4)" fill="#6DCCA0" filter="url(#w-sparkle)" d="M12 3l2.1 5.6L20 11l-5.9 2.4L12 19l-2.1-5.6L4 11l5.9-2.4z"/>
+    </svg>
+  </div>
+  <p class="note">For any night surface: splash screens, app headers, merch. File: <code>curb-wordmark.svg</code></p>
+</section>
+
+<section>
+  <h2>App-icon mark</h2>
+  <div class="card" style="gap:32px">
+    <svg width="200" height="200" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Curb app icon">
+      <defs>
+        <linearGradient id="m-tile" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#2A7D52"/><stop offset="0.55" stop-color="#1A4D34"/><stop offset="1" stop-color="#0E1A14"/>
+        </linearGradient>
+        <linearGradient id="m-sheen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.22"/><stop offset="0.4" stop-color="#FFFFFF" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="m-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="16"/></filter>
+        <filter id="m-sparkle" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="4" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <rect width="512" height="512" rx="118" fill="url(#m-tile)"/>
+      <rect width="512" height="512" rx="118" fill="url(#m-sheen)"/>
+      <rect x="6" y="6" width="500" height="500" rx="112" fill="none" stroke="#6DCCA0" stroke-opacity="0.22" stroke-width="2"/>
+      <text x="244" y="372" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="330" fill="#6DCCA0" opacity="0.5" filter="url(#m-glow)">C</text>
+      <text x="244" y="372" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="330" fill="#FFFFFF">C</text>
+      <path transform="translate(330 196) scale(3.4)" fill="#6DCCA0" filter="url(#m-sparkle)" d="M12 3l2.1 5.6L20 11l-5.9 2.4L12 19l-2.1-5.6L4 11l5.9-2.4z"/>
+    </svg>
+    <svg width="96" height="96" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="512" height="512" rx="118" fill="url(#m-tile)"/>
+      <rect width="512" height="512" rx="118" fill="url(#m-sheen)"/>
+      <text x="244" y="372" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="330" fill="#FFFFFF">C</text>
+      <path transform="translate(330 196) scale(3.4)" fill="#6DCCA0" d="M12 3l2.1 5.6L20 11l-5.9 2.4L12 19l-2.1-5.6L4 11l5.9-2.4z"/>
+    </svg>
+  </div>
+  <p class="note">Home-screen icon and avatar, shown at install and small sizes. File: <code>curb-mark.svg</code></p>
+</section>
+
+<section>
+  <h2>Palette</h2>
+  <div class="swatches">
+    <div class="swatch"><div class="chip" style="background:#0E1A14"></div><div class="label"><b>Night</b><span>#0E1A14</span></div></div>
+    <div class="swatch"><div class="chip" style="background:#2A7D52"></div><div class="label"><b>Curb Green</b><span>#2A7D52</span></div></div>
+    <div class="swatch"><div class="chip" style="background:#6DCCA0"></div><div class="label"><b>Mint</b><span>#6DCCA0</span></div></div>
+    <div class="swatch"><div class="chip" style="background:#AFC4B8"></div><div class="label"><b>Mist</b><span>#AFC4B8</span></div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Type</h2>
+  <div class="type-row">
+    <div class="type-card serif"><div class="sample">DM Serif Display</div><small>Headlines, hero numbers, the wordmark</small></div>
+    <div class="type-card"><div class="sample" style="font-weight:500">DM Sans</div><small>Body, UI, taglines</small></div>
+  </div>
+</section>
+
+</body>
+</html>
