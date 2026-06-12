@@ -6,6 +6,7 @@ import type {
   Category,
   Challenge,
   Contribution,
+  MealPlan,
   NotificationItem,
   PayProfile,
   PrimaryGoal,
@@ -32,6 +33,7 @@ import {
   generateCategories,
 } from '@/lib/onboardingDefaults'
 import { accruedRoundUps } from '@/lib/roundup'
+import { evaluateMealPlan } from '@/lib/mealPlan'
 import { uid } from '@/lib/utils'
 
 export interface AppState {
@@ -56,6 +58,9 @@ export interface AppState {
   // Plaid / bank connection
   plaidUserId: string | null
   plaidConnected: boolean
+
+  // Campus meal plan
+  mealPlan: MealPlan | null
 
   // user
   setUser: (u: User) => void
@@ -107,6 +112,10 @@ export interface AppState {
   // Plaid
   setPlaidUserId: (id: string) => void
   importPlaidTransactions: (raw: PlaidTransaction[]) => void
+
+  // meal plan
+  setMealPlan: (p: MealPlan | null) => void
+  updateMealPlanBalance: (diningDollars: number, swipesRemaining?: number | null) => void
 }
 
 /** Shape returned by /api/sync-transactions */
@@ -143,6 +152,7 @@ const emptyState = () => ({
   bills: [] as Bill[],
   plaidUserId: null as string | null,
   plaidConnected: false,
+  mealPlan: null as MealPlan | null,
 })
 
 /** Maya's pre-populated demo data. */
@@ -162,6 +172,18 @@ const demoState = () => ({
   } as RoundUpRule,
   payProfile: seedPayProfile,
   bills: seedBills,
+  mealPlan: {
+    school: 'State U',
+    planName: 'Summer Flex',
+    diningDollarsStart: 280,
+    baselineDate: '2026-05-26',
+    diningDollars: 214,
+    swipesRemaining: 23,
+    swipeValue: 9.4,
+    termStart: '2026-05-26',
+    termEnd: '2026-08-14',
+    updatedAt: '2026-06-10T16:00:00.000Z',
+  } as MealPlan,
 })
 
 export const useAppStore = create<AppState>()(
@@ -386,6 +408,27 @@ export const useAppStore = create<AppState>()(
           hydrated: true,
         })
       },
+
+      setMealPlan: (p) => set({ mealPlan: p }),
+
+      // Balance refresh is the v1 "sync" — recompute pace and surface an
+      // inbox alert when the new number changes the story.
+      updateMealPlanBalance: (diningDollars, swipesRemaining) =>
+        set((s) => {
+          if (!s.mealPlan) return {}
+          const plan = {
+            ...s.mealPlan,
+            diningDollars,
+            swipesRemaining:
+              swipesRemaining === undefined ? s.mealPlan.swipesRemaining : swipesRemaining,
+            updatedAt: new Date().toISOString(),
+          }
+          const alert = evaluateMealPlan(plan)
+          return {
+            mealPlan: plan,
+            notifications: alert ? [alert, ...s.notifications] : s.notifications,
+          }
+        }),
 
       setPlaidUserId: (id) => set({ plaidUserId: id, plaidConnected: true }),
 

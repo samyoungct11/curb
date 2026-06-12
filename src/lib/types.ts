@@ -115,6 +115,33 @@ export interface RoundUpRule {
   sweptThrough?: string
 }
 
+/**
+ * Campus meal plan — a prepaid, use-it-or-lose-it balance with a hard expiry.
+ * v1 is manual: the student enters the plan once and refreshes the balance
+ * in seconds whenever they want updated burn-rate math. Portal sync later.
+ */
+export interface MealPlan {
+  school: string
+  planName?: string
+  /** Dining dollars balance when tracking began. */
+  diningDollarsStart: number
+  /**
+   * When `diningDollarsStart` was recorded. Burn rate measures from here,
+   * not term start — students often add a plan mid-term.
+   */
+  baselineDate: string // ISO date
+  /** Current dining dollars balance (student-updated). */
+  diningDollars: number
+  /** Meal swipes left this term, if the plan has them. */
+  swipesRemaining?: number | null
+  /** Door price of one swipe in dollars; defaults applied in lib/mealPlan. */
+  swipeValue?: number | null
+  termStart: string // ISO date
+  termEnd: string // ISO date
+  /** Last time the student updated the balance. */
+  updatedAt: string
+}
+
 /** How often the user gets paid — drives the Safe-to-Spend pay period. */
 export type PayFrequency = 'weekly' | 'biweekly' | 'semimonthly' | 'monthly'
 
