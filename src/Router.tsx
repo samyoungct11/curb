@@ -12,6 +12,7 @@ import { AffordCheck } from '@/screens/AffordCheck'
 import { Inbox } from '@/screens/Inbox'
 import { WeeklySummary } from '@/screens/WeeklySummary'
 import { Onboarding } from '@/screens/Onboarding'
+import { CampusCard } from '@/screens/CampusCard'
 
 export function Router() {
   return (
@@ -31,6 +32,7 @@ export function Router() {
           <Route element={<FullScreenLayout />}>
             <Route path="/category/:id" element={<CategoryDetail />} />
             <Route path="/inbox" element={<Inbox />} />
+            <Route path="/campus-card" element={<CampusCard />} />
           </Route>
 
           {/* Self-managed full-bleed screens */}
