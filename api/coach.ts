@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { rateLimit } from './_ratelimit.js'
+import { requireUser } from './_auth.js'
 
 /**
  * Curb money coach — natural-language Q&A + weekly recap powered by the
@@ -225,9 +226,17 @@ async function callAnthropic(
   return (await resp.json()) as AnthropicResponse
 }
 
+// Conversations longer than this are rejected rather than truncated — the
+// client resets history well before this, so hitting it means abuse.
+const MAX_MESSAGES = 40
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' })
   if (!(await rateLimit(req, res, 'coach'))) return
+
+  // This route spends real Anthropic credits per call — verified users only.
+  const userId = await requireUser(req, res)
+  if (!userId) return
 
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) return res.status(503).json({ error: 'not_configured' })
@@ -235,8 +244,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const body = req.body as { messages?: AnthropicMessage[]; snapshot?: CoachSnapshot }
   const snapshot = body?.snapshot
   const incoming = body?.messages
-  if (!snapshot || !Array.isArray(incoming) || incoming.length === 0) {
+  if (!snapshot || typeof snapshot !== 'object' || !Array.isArray(incoming) || incoming.length === 0) {
     return res.status(400).json({ error: 'messages and snapshot are required' })
+  }
+  if (incoming.length > MAX_MESSAGES) {
+    return res.status(400).json({ error: 'conversation too long — start a new one' })
   }
 
   try {
@@ -268,8 +280,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const text = (response?.content ?? [])
-      .filter((b) => b.type === 'text')
-      .map((b) => (b as { text: string }).text)
+      .filter((b): b is ContentBlock & { text: string } => b.type === 'text' && typeof b.text === 'string')
+      .map((b) => b.text)
       .join('\n')
       .trim()
 

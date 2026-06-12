@@ -27,13 +27,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const supabase = supabaseAdmin!
 
   const { public_token, institution_name } = req.body as {
-    public_token: string
-    institution_name: string
+    public_token?: unknown
+    institution_name?: unknown
   }
 
-  if (!public_token) {
+  if (typeof public_token !== 'string' || public_token.length === 0 || public_token.length > 256) {
     return res.status(400).json({ error: 'public_token required' })
   }
+  // Display-only field; cap it so junk can't be parked in the database.
+  const instName =
+    typeof institution_name === 'string' ? institution_name.slice(0, 120) : null
 
   try {
     // Exchange public token → permanent access token (never sent to browser)
@@ -43,7 +46,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { data, error } = await supabase
       .from('plaid_items')
       .upsert(
-        { user_id: userId, access_token, item_id, institution_name },
+        { user_id: userId, access_token, item_id, institution_name: instName },
         { onConflict: 'item_id' },
       )
       .select()

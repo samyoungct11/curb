@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { buildCoach } from '@/lib/coach'
 import { buildCoachSnapshot } from '@/lib/coachSnapshot'
+import { apiPost } from '@/lib/api'
 
 /** A turn as shown in the chat UI. */
 export interface CoachTurn {
@@ -63,11 +64,9 @@ export function useCoach() {
     try {
       const snapshot = buildCoachSnapshot(state)
       const messages = [...apiHistory.current, { role: 'user' as const, content: text }]
-      const resp = await fetch('/api/coach', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ messages, snapshot }),
-      })
+      // apiPost attaches the Supabase session token — /api/coach requires a
+      // verified user so strangers can't spend the Anthropic budget.
+      const resp = await apiPost('/api/coach', { messages, snapshot })
       if (!resp.ok) throw new Error(`coach ${resp.status}`)
       const data = (await resp.json()) as { text: string; messages: ApiMessage[] }
       apiHistory.current = data.messages
