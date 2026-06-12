@@ -2,6 +2,7 @@ import { startOfMonth } from 'date-fns'
 import type { AppState } from '@/store/useAppStore'
 import { detectSubscriptions, type Cadence } from '@/lib/subscriptions'
 import { computeSafeToSpend, computeVelocity } from '@/lib/safeToSpend'
+import { mealPlanStatus, swipeMath } from '@/lib/mealPlan'
 
 /**
  * Compact, model-friendly snapshot of the user's money.
@@ -79,6 +80,22 @@ export interface CoachSnapshot {
   /** Most recent transactions, newest-first (capped). */
   transactions: SnapshotTransaction[]
   goals: { name: string; target: number; current: number; targetDate?: string }[]
+  /**
+   * Campus meal plan — prepaid, use-it-or-lose-it money the coach should
+   * steer the student toward before cash. Null when no plan is set up.
+   */
+  mealPlan: {
+    school: string
+    diningDollars: number
+    dailyAllowance: number
+    burnPerDay: number
+    paceStatus: 'ahead' | 'on_track' | 'behind'
+    /** Date the balance runs out at current pace; null = lasts to term end. */
+    projectedRunOut: string | null
+    termEnd: string
+    swipesRemaining: number | null
+    swipeValue: number | null
+  } | null
 }
 
 const isoDay = (d: Date) =>
@@ -91,12 +108,12 @@ const round2 = (n: number) => Math.round(n * 100) / 100
 export function buildCoachSnapshot(
   state: Pick<
     AppState,
-    'user' | 'categories' | 'transactions' | 'goals' | 'payProfile' | 'bills'
+    'user' | 'categories' | 'transactions' | 'goals' | 'payProfile' | 'bills' | 'mealPlan'
   >,
   now: Date = new Date(),
   txnLimit = 60,
 ): CoachSnapshot {
-  const { user, categories, transactions, goals, payProfile, bills } = state
+  const { user, categories, transactions, goals, payProfile, bills, mealPlan } = state
   const monthStart = startOfMonth(now)
 
   const catById = Object.fromEntries(categories.map((c) => [c.id, c]))
@@ -183,5 +200,22 @@ export function buildCoachSnapshot(
       current: g.currentAmount,
       targetDate: g.targetDate,
     })),
+    mealPlan: mealPlan
+      ? (() => {
+          const s = mealPlanStatus(mealPlan, now)
+          const sw = swipeMath(mealPlan)
+          return {
+            school: mealPlan.school,
+            diningDollars: round2(mealPlan.diningDollars),
+            dailyAllowance: round2(s.dailyAllowance),
+            burnPerDay: round2(s.burnPerDay),
+            paceStatus: s.pace,
+            projectedRunOut: s.runOutDate ? isoDay(s.runOutDate) : null,
+            termEnd: mealPlan.termEnd,
+            swipesRemaining: sw?.remaining ?? null,
+            swipeValue: sw ? round2(sw.value) : null,
+          }
+        })()
+      : null,
   }
 }
