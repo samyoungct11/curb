@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { format } from 'date-fns'
-import { Bell, ChevronRight, Sparkles, Wallet } from 'lucide-react'
+import { Bell, ChevronRight, CreditCard, Sparkles, Wallet } from 'lucide-react'
 import { useAppStore } from '@/store/useAppStore'
 import { CurbLogo } from '@/components/CurbLogo'
 import { ProgressRing } from '@/components/ProgressRing'
@@ -22,7 +22,7 @@ import { cn, money, signedMoney } from '@/lib/utils'
 
 export function Home() {
   const navigate = useNavigate()
-  const { user, categories, transactions, notifications, payProfile, bills } =
+  const { user, categories, transactions, notifications, payProfile, bills, mealPlan } =
     useAppStore()
 
   const now = new Date()
@@ -131,6 +131,37 @@ export function Home() {
                     until {format(safe.period.end, 'MMM d')}
                   </span>
                 </div>
+              </div>
+            </div>
+            <ChevronRight size={18} strokeWidth={1.75} className="text-soft shrink-0" />
+          </Card>
+        </Link>
+      )}
+
+      {/* Campus card — meal plan balance, or setup nudge for students */}
+      {(mealPlan || user?.isStudent) && (
+        <Link to="/campus-card" className="block">
+          <Card className="flex items-center justify-between py-4 px-5 tap">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-xl bg-brand/10 text-brand flex items-center justify-center shrink-0">
+                <CreditCard size={17} strokeWidth={1.75} />
+              </div>
+              <div>
+                <div className="text-[11px] text-soft uppercase tracking-[0.14em] font-semibold">
+                  Campus card
+                </div>
+                {mealPlan ? (
+                  <div className="mt-0.5">
+                    <span className="num text-[19px] font-bold tracking-tight">
+                      {money(mealPlan.diningDollars)}
+                    </span>
+                    <span className="text-[12px] text-soft ml-1">dining dollars</span>
+                  </div>
+                ) : (
+                  <div className="mt-0.5 text-[13px] font-semibold">
+                    Track your meal plan
+                  </div>
+                )}
               </div>
             </div>
             <ChevronRight size={18} strokeWidth={1.75} className="text-soft shrink-0" />

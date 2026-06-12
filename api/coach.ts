@@ -66,6 +66,17 @@ interface CoachSnapshot {
   subscriptions: { items: SnapshotSub[]; monthlyTotal: number; foundMoney: number }
   transactions: SnapshotTransaction[]
   goals: { name: string; target: number; current: number; targetDate?: string }[]
+  mealPlan?: {
+    school: string
+    diningDollars: number
+    dailyAllowance: number
+    burnPerDay: number
+    paceStatus: 'ahead' | 'on_track' | 'behind'
+    projectedRunOut: string | null
+    termEnd: string
+    swipesRemaining: number | null
+    swipeValue: number | null
+  } | null
 }
 
 // ── Minimal Anthropic Messages API types (raw fetch, no SDK dependency) ─────
@@ -164,7 +175,8 @@ Voice & rules:
 - Money is in ${snap.currency}. Format like $12 or $12.40 (drop cents when whole). Today is ${snap.today}.
 - Give one concrete, encouraging next step when it helps. Celebrate wins.
 - You are not a licensed financial advisor. Do not give personalized investment, tax, or legal advice — if asked, gently say so and redirect to budgeting help.
-- If the data doesn't support an answer, say what you'd need rather than inventing numbers.`
+- If the data doesn't support an answer, say what you'd need rather than inventing numbers.
+- If a campus meal plan appears in the overview, treat it as prepaid use-it-or-lose-it money: when food spending comes up, steer toward dining dollars and meal swipes before cash, and flag balances on pace to expire unused or run out early.`
 
   const o = snap.overview
   const overview = `Current money overview (this calendar month):
@@ -174,7 +186,8 @@ Voice & rules:
 ${o.safeToSpendPerDay != null ? `- Safe to spend: $${o.safeToSpendPerDay}/day, $${o.periodRemaining} left over ${o.daysToPayday} days until next payday (${o.nextPayday}).` : '- Safe-to-Spend is not set up yet (no payday/bills profile).'}
 - Subscriptions: ${snap.subscriptions.items.length} detected, $${snap.subscriptions.monthlyTotal}/mo total, $${snap.subscriptions.foundMoney}/mo could be freed by cancelling non-essentials.
 - Categories: ${snap.categories.map((c) => `${c.name} $${c.spent}/$${c.budget}`).join(', ') || 'none'}.
-${snap.goals.length ? `- Goals: ${snap.goals.map((g) => `${g.name} $${g.current}/$${g.target}`).join(', ')}.` : ''}`
+${snap.goals.length ? `- Goals: ${snap.goals.map((g) => `${g.name} $${g.current}/$${g.target}`).join(', ')}.` : ''}
+${snap.mealPlan ? `- Campus meal plan (${snap.mealPlan.school}): $${snap.mealPlan.diningDollars} dining dollars left, burning $${snap.mealPlan.burnPerDay}/day (pace: ${snap.mealPlan.paceStatus}); ${snap.mealPlan.projectedRunOut ? `projected to run out ${snap.mealPlan.projectedRunOut}, term ends ${snap.mealPlan.termEnd}` : `lasts to term end ${snap.mealPlan.termEnd}`}; can spend $${snap.mealPlan.dailyAllowance}/day to land on $0${snap.mealPlan.swipesRemaining != null ? `; ${snap.mealPlan.swipesRemaining} meal swipes left worth ~$${snap.mealPlan.swipeValue} each (swipes expire first — use before dining dollars)` : ''}.` : ''}`
 
   return [
     { type: 'text', text: persona, cache_control: { type: 'ephemeral' } },
